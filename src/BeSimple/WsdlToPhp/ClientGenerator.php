@@ -112,7 +112,7 @@ class ClientGenerator extends AbstractClassGenerator
         $lines[] = $this->spaces . '{';
         $lines[] = $this->spaces . $this->spaces . 'if (!isset($options[\'classmap\'])) {';
         $lines[] = $this->spaces . $this->spaces . $this->spaces . '$options[\'classmap\'] = array(';
-        foreach ($data['types'] as $name => $type) {
+        if (!empty($data['types'])) foreach ($data['types'] as $name => $type) {
             $lines[] = str_repeat($this->spaces, 4) . "'" . $name . "' => '" . $type . "',";
         }
         $lines[] = $this->spaces . $this->spaces . $this->spaces . ');';

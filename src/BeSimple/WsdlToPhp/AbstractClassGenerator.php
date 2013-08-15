@@ -146,7 +146,7 @@ abstract class AbstractClassGenerator
             }
         }
 
-        file_put_contents($path, $this->generateClass($data));
+        file_put_contents($path, $this->generateClass($data) . "\n");
 
         return $path;
     }

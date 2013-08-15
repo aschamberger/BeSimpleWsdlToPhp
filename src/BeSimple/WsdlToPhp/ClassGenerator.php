@@ -35,7 +35,9 @@ class ClassGenerator extends AbstractClassGenerator
         $lines = array();
         $lines[] = '<?php';
         $lines[] = '';
-        $lines[] = $this->generateNamespace($data);
+        if ($namespace = $this->generateNamespace($data)) {
+            $lines[] = $namespace;
+        }
         $lines[] = $this->generateDocBlock($data);
         $lines[] = $this->generateClassName($data);
         $lines[] = '{';
@@ -55,7 +57,7 @@ class ClassGenerator extends AbstractClassGenerator
     protected function generateClassName($data)
     {
         $class = 'class ' . $this->createValidClassName($data['name'], $data['namespace']);
-        if (isset($data['parent'])) {
+        if (!empty($data['parent'])) {
             $class .= ' extends ' . $this->createValidClassName($data['parent'], $data['namespace']);
         }
 
@@ -96,10 +98,12 @@ class ClassGenerator extends AbstractClassGenerator
      */
     protected function generateEnumConstants($property)
     {
+        $name = empty($property['name'])?'':strtoupper($property['name']) . '_';
+
         $lines = array();
         if (isset($property['enum'])) {
             foreach ($property['enum'] as $enum) {
-                $lines[] = $this->spaces . 'const ' . strtoupper($property['name']) . '_' . strtoupper($enum) . ' = \'' . $enum . '\';';
+                $lines[] = $this->spaces . 'const ' . $name . strtoupper($enum) . ' = \'' . $enum . '\';';
             }
         }
 
@@ -115,6 +119,8 @@ class ClassGenerator extends AbstractClassGenerator
      */
     protected function generateProperty($property)
     {
+        if (empty($property['name'])) return '';
+
         $lines = array();
         $lines[] = $this->spaces . '/**';
         $lines[] = $this->spaces . ' * ' . $property['name'];

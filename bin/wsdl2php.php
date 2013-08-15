@@ -17,35 +17,34 @@ use BeSimple\WsdlToPhp\ClientGenerator;
 
 error_reporting(E_ALL | E_STRICT);
 
-spl_autoload_register(function($class) {
-    if (0 === strpos($class, 'BeSimple\WsdlToPhp\\')) {
-        $path = __DIR__.'/../src/'.strtr($class, '\\', '/').'.php';
-        if (file_exists($path) && is_readable($path)) {
-            require_once $path;
+include __DIR__.'/../vendor/autoload.php';
 
-            return true;
-        }
-    }
-});
-
-$shortopts = 'w:c:s:n:v:o:';
-$longopts = array(
-    'wsdl:',
-    'client:',
-    'server:',
-    'namespace:',
-    'soap_version:',
-    'output_dir',
+$opts = array(
+    'w' => 'wsdl:',
+    'c' => 'client:',
+    's' => 'server:',
+    'n' => 'namespace:',
+    'v' => 'soap_version:',
+    'o' => 'output_dir:',
 );
 
-$options = getopt($shortopts, $longopts);
+$options = getopt(implode(':', array_keys($opts)) . ':', array_values($opts));
 
 if (isset($options['w'])) {
     $wsdlFile = $options['w'];
 } elseif (isset($options['wsdl'])) {
     $wsdlFile = $options['wsdl'];
 } else {
-    exit('Parameter -w <file> or --wsdl <file> required!' . PHP_EOL);
+    $output = 'Optional params:' . PHP_EOL;
+
+    foreach ($opts as $key => $val) {
+        $val = substr($val, 0, strlen($val) - 1);
+        $output .= "-{$key} or --{$val}" . PHP_EOL;
+    }
+
+    die(
+        'Parameter -w <file> or --wsdl <file> required!' . PHP_EOL . PHP_EOL . $output
+    );
 }
 
 if (isset($options['c'])) {
@@ -88,15 +87,23 @@ if (isset($options['o'])) {
     $outputDir = getcwd();
 }
 
+echo "Starts\n";
 $p = new WsdlParser($wsdlFile, $soapVersion);
 $wsdlTypes = $p->getWsdlTypes();
-
+echo "Generates\n";
 $generator = new ClassGenerator();
 $classmapTypes = array();
-foreach ($wsdlTypes as $type) {
-    $file = $generator->writeClass($type, $outputDir);
-    echo 'written file ' . $file . PHP_EOL;
-    $classmapTypes[$type['name']] = '\\' . $type['namespace'] .'\\' . $type['name'];
+if (!empty($wsdlTypes)) {
+    foreach ($wsdlTypes as $type) {
+        if (!empty($namespace)) {
+            $type['namespace'] = $namespace . (empty($type['namespace']) ? '' : '\\' . $type['namespace']);
+        }
+        $file = $generator->writeClass($type, $outputDir);
+        echo 'written file ' . $file . PHP_EOL;
+        $classmapTypes[$type['name']] = '\\' . $type['namespace'] .'\\' . $type['name'];
+    }
+} else {
+    echo "No types found\n";
 }
 
 if (false !== $client) {

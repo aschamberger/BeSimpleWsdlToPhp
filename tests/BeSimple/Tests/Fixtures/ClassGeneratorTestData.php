@@ -75,4 +75,12 @@ return array(
             ),
         ),
     ),
+    'empty' => array(
+        'wsdl' => 'http://localhost/',
+        'namespace' => '',
+        'name' => 'EmptyClass',
+        'parent' => '',
+        'documentation' => '',
+        'properties' => array(),
+    ),
 );

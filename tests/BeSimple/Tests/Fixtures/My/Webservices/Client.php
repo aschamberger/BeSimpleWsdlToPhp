@@ -15,6 +15,22 @@ use BeSimple\SoapClient\SoapClient as BeSimpleSoapClient;
 class Client extends BeSimpleSoapClient
 {
     /**
+     * Constructor.
+     *
+     * @param string               $wsdl    WSDL file
+     * @param array(string=>mixed) $options Options array
+     */
+    public function __construct($wsdl, array $options = array())
+    {
+        if (!isset($options['classmap'])) {
+            $options['classmap'] = array(
+            );
+        }
+
+        return parent::__construct($wsdl, $options);
+    }
+
+    /**
      * getVersion
      *
      * Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy

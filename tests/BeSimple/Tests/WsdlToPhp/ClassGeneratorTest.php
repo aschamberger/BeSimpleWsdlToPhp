@@ -29,7 +29,6 @@ class ClassGeneratorTest extends \PHPUnit_Framework_TestCase
     {
         $generator = new ClassGenerator();
         $targetDir = sys_get_temp_dir();
-        $targetDir = dirname(__DIR__).DIRECTORY_SEPARATOR.'Fixtures';
 
         $target = $generator->writeClass($this->testData['customer'], $targetDir);
         $file1 = dirname(__DIR__).DIRECTORY_SEPARATOR.'Fixtures/My/Webservices/Customer.php';
@@ -45,10 +44,20 @@ class ClassGeneratorTest extends \PHPUnit_Framework_TestCase
     {
         $generator = new ClassGenerator();
         $targetDir = sys_get_temp_dir();
-        $targetDir = dirname(__DIR__).DIRECTORY_SEPARATOR.'Fixtures';
 
         $target = $generator->writeClass($this->testData['online_customer'], $targetDir);
         $file = dirname(__DIR__).DIRECTORY_SEPARATOR.'Fixtures/My/Webservices/OnlineCustomer.php';
+        $this->assertFileEquals($file, $target);
+//         unset($file);
+    }
+
+    public function testGeneratorEmpty()
+    {
+        $generator = new ClassGenerator();
+        $targetDir = sys_get_temp_dir();
+
+        $target = $generator->writeClass($this->testData['empty'], $targetDir);
+        $file = dirname(__DIR__).DIRECTORY_SEPARATOR.'Fixtures/My/Webservices/EmptyClass.php';
         $this->assertFileEquals($file, $target);
 //         unset($file);
     }
