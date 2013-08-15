@@ -184,8 +184,8 @@ class WsdlParser
         $wsdlOperation = array(
             'name' => $operationName,
             'parameters' => $parameters,
-            'wrapParameters' => '\\'.$inputTypeWsdl['namespace'].'\\'.$inputTypeWsdl['name'],
-            'return' => '\\'.$outputTypeWsdl['namespace'].'\\'.$outputTypeWsdl['name'],
+            'wrapParameters' =>  $inputTypeWsdl['namespace'].'\\'.$inputTypeWsdl['name'],
+            'return' => $outputTypeWsdl['namespace'].'\\'.$outputTypeWsdl['name'],
         );
 
         return $wsdlOperation;
@@ -457,22 +457,6 @@ class WsdlParser
                         );
                     }
                 }
-
-//                } elseif ($prefix == $xmlSchemaPrefix) {
-//                    $wsdlType = array(
-//                        'wsdl'      => $this->wsdlFile,
-//                        'namespace' => $namespace,
-//                        'name'      => $name,
-//                        'properties' => array(
-//                            array(
-//                                'name'     => '_',
-//                                'phpType'  => $parent, // TODO check
-//                                'wsdlType' => $attrType,
-//                            ),
-//                        ),
-//                    );
-//
-//                }
                 if (!empty($wsdlType)) {
                     $wsdlTypes[$targetNamespace . $attrName] = $wsdlType;
                 }
@@ -490,11 +474,11 @@ class WsdlParser
      */
     private function convertXmlNsToPhpNs($ns)
     {
-        if (false !== strpos($ns, 'http')) {
-            return '';
-        }
-
-        $namespace = str_replace(array('http://', '/'), array('','\\'), $ns);
+        return '';
+        $ns = rtrim($ns, '/');
+        $nsArr = explode('/', $ns);
+        $namespace = array_pop($nsArr);
+        $namespace = str_replace('.', '\\', $namespace);
         $namespace = preg_replace('/[^\w\\\]/', '_', $namespace);
         $namespace = rtrim($namespace, '\\');
 
@@ -509,15 +493,18 @@ class WsdlParser
         }
 
         // PHP type for complex type (=class name)...
-        $prefix = '';
-        $name = '';
         list($prefix, $name) = $this->getTypeName($xmlSchemaType);
         $ns = $this->domDocument->lookupNamespaceURI($prefix);
         $namespace = $this->convertXmlNsToPhpNs($ns);
         return ($namespace? $namespace . '\\' : '') . $name;
     }
 
-    private function resolveRestrictions($type, &$property)
+    /**
+     * @param \DOMElement $type
+     * @param $property
+     * @param null $xmlSchemaPrefix
+     */
+    private function resolveRestrictions($type, &$property, $xmlSchemaPrefix = null)
     {
         $restriction = $type->getElementsByTagNameNS(Helper::NS_XML_SCHEMA, 'restriction');
 
@@ -528,6 +515,10 @@ class WsdlParser
                 foreach ($enumeration as $enum) {
                     $property['enum'][] = $enum->getAttribute('value');
                 }
+            } elseif (null !== $xmlSchemaPrefix) {
+                $property['name'] = '_';
+                $property['phpType'] = $this->getPhpTypeForSchemaType($restriction->item(0)->getAttribute('base'), $xmlSchemaPrefix);
+                $property['wsdlType'] = $restriction->item(0)->getAttribute('base');
             }
 
             $minLength = $type->getElementsByTagNameNS(Helper::NS_XML_SCHEMA, 'minLength');
@@ -593,8 +584,8 @@ class WsdlParser
                 $wsdlType['properties'][] = $property;
             }
         } elseif ($type->hasChildNodes()) {
-            $property = array();
-            $this->resolveRestrictions($type, $property);
+            $this->resolveRestrictions($type, $property, $xmlSchemaPrefix);;
+
             $wsdlType['properties'][] = $property;
         }
     }
