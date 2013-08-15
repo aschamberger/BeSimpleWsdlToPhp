@@ -243,6 +243,10 @@ class WsdlParser
             'name'      => $type->getAttribute('name'),
         );
 
+        if ('ArrayOf' == substr($type->getAttribute('name'), 0, strlen('ArrayOf'))) {
+            return array();
+        }
+
         $doc = $type->getElementsByTagNameNS(Helper::NS_XML_SCHEMA, 'documentation');
         if ($doc->length > 0) {
             $wsdlType['documentation'] = trim($doc->item(0)->nodeValue);
@@ -378,7 +382,8 @@ class WsdlParser
                 $attrType = $element->getAttribute('type');
 
                 list($prefix, $typeName) = $this->getTypeName($attrType);
-                if (in_array($typeName, $this->simpleTypes)) {
+
+                if (in_array($typeName, array_keys(XmlSchemaMapper::getAllTypes()))) {
                     continue;
                 }
 
@@ -487,16 +492,21 @@ class WsdlParser
 
     private function getPhpTypeForSchemaType($xmlSchemaType, $xmlSchemaPrefix)
     {
+
+        // PHP type for complex type (=class name)...
+        list($prefix, $type) = $this->getTypeName($xmlSchemaType);
+
+        if ('ArrayOf' == substr($type, 0, strlen('ArrayOf'))) {
+            return 'array<' . substr($type, strlen('ArrayOf')) . '>';
+        }
+
         // XML schema types
         if ($xmlSchemaPrefix == substr($xmlSchemaType, 0, strlen($xmlSchemaPrefix))) {
             return XmlSchemaMapper::xmlSchemaToPhpType($xmlSchemaType, $xmlSchemaPrefix);
         }
-
-        // PHP type for complex type (=class name)...
-        list($prefix, $name) = $this->getTypeName($xmlSchemaType);
         $ns = $this->domDocument->lookupNamespaceURI($prefix);
         $namespace = $this->convertXmlNsToPhpNs($ns);
-        return ($namespace? $namespace . '\\' : '') . $name;
+        return ($namespace? $namespace . '\\' : '') . $type;
     }
 
     /**

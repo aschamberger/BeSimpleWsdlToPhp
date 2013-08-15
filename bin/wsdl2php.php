@@ -17,7 +17,7 @@ use BeSimple\WsdlToPhp\ClientGenerator;
 
 error_reporting(E_ALL | E_STRICT);
 
-include __DIR__.'/../vendor/autoload.php';
+include getcwd() .'/vendor/autoload.php';
 
 $opts = array(
     'w' => 'wsdl:',
