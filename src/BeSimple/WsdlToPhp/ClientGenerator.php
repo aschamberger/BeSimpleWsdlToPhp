@@ -46,7 +46,12 @@ class ClientGenerator extends AbstractClassGenerator
         $lines[] = '<?php';
         $lines[] = '';
         $lines[] = $this->generateNamespace($data);
-        $lines[] = 'use BeSimple\\SoapClient\\SoapClient as BeSimpleSoapClient;';
+
+        if (empty($data['parent'])) {
+            $data['parent'] = '\\SoapClient';
+        }
+
+        $lines[] = 'use ' . $data['parent'] . ' as BaseSoapClient;';
         $lines[] = '';
         $lines[] = $this->generateDocBlock($data);
         $lines[] = $this->generateClassName($data);
@@ -67,7 +72,7 @@ class ClientGenerator extends AbstractClassGenerator
     protected function generateClassName($data)
     {
         $class = 'class ' . $this->createValidClassName($data['name'], $data['namespace']);
-        $class .= ' extends BeSimpleSoapClient';
+        $class .= ' extends BaseSoapClient';
 
         return $class;
     }
@@ -102,6 +107,12 @@ class ClientGenerator extends AbstractClassGenerator
     protected function generateConstructor($data)
     {
         $lines = array();
+        $lines[] = $this->spaces . 'protected $classMap = array(';
+        if (!empty($data['types'])) foreach ($data['types'] as $name => $type) {
+            $lines[] = str_repeat($this->spaces, 2) . "'" . $name . "' => '" . $type . "',";
+        }
+        $lines[] = $this->spaces . ');';
+        $lines[] = '';
         $lines[] = $this->spaces . '/**';
         $lines[] = $this->spaces . ' * Constructor.';
         $lines[] = $this->spaces . ' *';
@@ -111,14 +122,15 @@ class ClientGenerator extends AbstractClassGenerator
         $lines[] = $this->spaces . 'public function __construct($wsdl, array $options = array())';
         $lines[] = $this->spaces . '{';
         $lines[] = $this->spaces . $this->spaces . 'if (!isset($options[\'classmap\'])) {';
-        $lines[] = $this->spaces . $this->spaces . $this->spaces . '$options[\'classmap\'] = array(';
-        if (!empty($data['types'])) foreach ($data['types'] as $name => $type) {
-            $lines[] = str_repeat($this->spaces, 4) . "'" . $name . "' => '" . $type . "',";
-        }
-        $lines[] = $this->spaces . $this->spaces . $this->spaces . ');';
+        $lines[] = $this->spaces . $this->spaces . $this->spaces . '$options[\'classmap\'] = $this->getClassMap();';
         $lines[] = $this->spaces . $this->spaces . '}';
         $lines[] = '';
         $lines[] = $this->spaces . $this->spaces . 'return parent::__construct($wsdl, $options);';
+        $lines[] = $this->spaces . '}';
+        $lines[] = '';
+        $lines[] = $this->spaces . 'public function getClassMap()';
+        $lines[] = $this->spaces . '{';
+        $lines[] = $this->spaces . $this->spaces . 'return $this->classMap;';
         $lines[] = $this->spaces . '}';
 
         return implode("\n", $lines);

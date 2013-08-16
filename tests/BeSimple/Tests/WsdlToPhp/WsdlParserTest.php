@@ -18,7 +18,7 @@ use BeSimple\WsdlToPhp\WsdlParser;
 class WsdlParserTest extends \PHPUnit_Framework_TestCase
 {
     /**
-     * @test
+     * @~test
      */
     public function getWsdlTypesSimpleAndIncludes()
     {
@@ -37,7 +37,11 @@ class WsdlParserTest extends \PHPUnit_Framework_TestCase
                                 'Unassigned',
                                 'Personal',
                                 'Business',
-                            )
+                            ),
+                            'restrictions' => array(
+                                'enumeration' => 'Business'
+                            ),
+                            'wsdlType' => 'xs:string',
                         )
                     )
                 ),
@@ -51,7 +55,11 @@ class WsdlParserTest extends \PHPUnit_Framework_TestCase
                                 'Unassigned',
                                 'Checking',
                                 'Savings',
-                            )
+                            ),
+                            'restrictions' => array(
+                                'enumeration' => 'Savings'
+                            ),
+                            'wsdlType' => 'xs:string',
                         )
                     )
                 ),
@@ -61,7 +69,7 @@ class WsdlParserTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @test
+     * @~test
      */
     public function getWsdlTypesComplex()
     {
@@ -79,11 +87,15 @@ class WsdlParserTest extends \PHPUnit_Framework_TestCase
                             'name' => 'ApplicationID',
                             'phpType' => 'int',
                             'wsdlType' => 'xs:int',
+                            'isNull' => true,
+                            'restrictions' => array(),
                         ),
                         array(
                             'name' => 'Password',
                             'phpType' => 'string',
                             'wsdlType' => 'xs:string',
+                            'isNull' => true,
+                            'restrictions' => array(),
                         )
                     )
                 )
@@ -93,7 +105,7 @@ class WsdlParserTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @test
+     * @~test
      */
     public function getWsdlTypesCascade()
     {
@@ -111,6 +123,8 @@ class WsdlParserTest extends \PHPUnit_Framework_TestCase
                             'name' => 'AddBlindPaymentRequest',
                             'phpType' => 'AddBlindPaymentRequest',
                             'wsdlType' => 'q1:AddBlindPaymentRequest',
+                            'isNull' => true,
+                            'restrictions' => array(),
                         )
                     )
                 )
@@ -122,15 +136,58 @@ class WsdlParserTest extends \PHPUnit_Framework_TestCase
     /**
      * @~test
      */
-    public function getWsdlTypes()
+    public function getWsdlTypesRestrictions()
     {
-        $wsdlPath = __DIR__ . '/../Fixtures/wsdl/error.wsdl';
+        $wsdlPath = __DIR__ . '/../Fixtures/wsdl/restrictions.wsdl';
         $parser = new WsdlParser($wsdlPath, SOAP_1_2);
 
-        print_r($parser->getWsdlTypes());exit;
         $this->assertEquals(
             array(
+                'char' => array(
+                    'wsdl' => $wsdlPath,
+                    'namespace' => '',
+                    'name' => 'char',
+                    'properties' => array(
+                        array(
+                            'restrictions' => array (),
+                            'name' => '_',
+                            'phpType' => 'int',
+                            'wsdlType' => 'xs:int',
+                        ),
+                    ),
+                ),
+                'guid' => array(
+                    'wsdl' => $wsdlPath,
+                    'namespace' => '',
+                    'name' => 'guid',
+                    'properties' => array(
+                        array (
+                            'restrictions' => array(
+                                'pattern' => '[\\da-fA-F]{8}-[\\da-fA-F]{4}-[\\da-fA-F]{4}-[\\da-fA-F]{4}-[\\da-fA-F]{12}',
+                            ),
+                            'name' => '_',
+                            'phpType' => 'string',
+                            'wsdlType' => 'xs:string',
+                        ),
+                    ),
+                ),
             ),
+            $parser->getWsdlTypes()
+        );
+    }
+
+    /**
+     * @test
+     */
+    public function parseWsdlOperations()
+    {
+        $wsdlPath = __DIR__ . '/../Fixtures/wsdl/operations.wsdl';
+        $parser = new WsdlParser($wsdlPath, SOAP_1_2);
+
+        var_dump($parser->getWsdlOperations());exit;
+
+        $this->assertEquals(
+            array(),
             $parser->getWsdlTypes()
         );
     }
