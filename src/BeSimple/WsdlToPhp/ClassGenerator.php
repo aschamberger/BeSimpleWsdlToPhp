@@ -140,16 +140,13 @@ class ClassGenerator extends AbstractClassGenerator
         $lines[] = $this->spaces . ' *';
         $lines[] = $this->spaces . ' * The property has the following characteristics/restrictions:';
         $lines[] = $this->spaces . ' * - SchemaType: ' . $property['wsdlType'];
-        if (isset($property['minLength'])) {
-            $lines[] = $this->spaces . ' * - MinLength: ' . $property['minLength'];
-        }
-        if (isset($property['maxLength'])) {
-            $lines[] = $this->spaces . ' * - MaxLength: ' . $property['maxLength'];
+        foreach ($property['restrictions'] as $restriction => $value) {
+            $lines[] = $this->spaces . " * - {$restriction}: {$value}";
         }
         $lines[] = $this->spaces . ' *';
         $lines[] = $this->spaces . ' * @var ' . $property['phpType'];
         $lines[] = $this->spaces . ' */';
-        $lines[] = $this->spaces . "public $" . $property['name'] . ";";
+        $lines[] = $this->spaces . 'public $' . $property['name'] . ($property['isNull']?' = null':'') . ';';
 
         return implode("\n", $lines);
     }

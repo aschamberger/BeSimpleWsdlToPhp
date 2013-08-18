@@ -48,9 +48,9 @@ class Client extends BaseSoapClient
      */
     public function getVersion()
     {
-        $arguments = func_get_args();
+        $parameters = func_get_args();
 
-        return $this->__soapCall('getVersion', $arguments);
+        return $this->__soapCall('getVersion', array('parameters' => $parameters));
     }
 
     /**
@@ -68,12 +68,12 @@ class Client extends BaseSoapClient
      */
     public function getCustomer($name, $firstname, $country)
     {
-        $arguments = new My\Webservices\Customer();
-        $arguments->name = $name;
-        $arguments->firstname = $firstname;
-        $arguments->country = $country;
+        $parameters = new My\Webservices\Customer();
+        $parameters->name = $name;
+        $parameters->firstname = $firstname;
+        $parameters->country = $country;
 
-        return $this->__soapCall('getCustomer', $arguments);
+        return $this->__soapCall('getCustomer', array('parameters' => $parameters));
     }
 
     /**
@@ -89,9 +89,9 @@ class Client extends BaseSoapClient
      */
     public function getProductName($id)
     {
-        $arguments = func_get_args();
+        $parameters = func_get_args();
 
-        return $this->__soapCall('getProductName', $arguments);
+        return $this->__soapCall('getProductName', array('parameters' => $parameters));
     }
 
     /**
@@ -107,8 +107,8 @@ class Client extends BaseSoapClient
      */
     public function getCarByCustomer(My\Webservices\Customer $client)
     {
-        $arguments = func_get_args();
+        $parameters = func_get_args();
 
-        return $this->__soapCall('getCarByCustomer', $arguments);
+        return $this->__soapCall('getCarByCustomer', array('parameters' => $parameters));
     }
 }

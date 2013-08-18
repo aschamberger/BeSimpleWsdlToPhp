@@ -22,7 +22,7 @@ include getcwd() .'/vendor/autoload.php';
 $opts = array(
     'w' => 'wsdl:',
     'c' => 'client:',
-    's' => 'server:',
+//    's' => 'server:',
     'n' => 'namespace:',
     'v' => 'soap_version:',
     'o' => 'output_dir:',
@@ -35,7 +35,7 @@ if (isset($options['w'])) {
 } elseif (isset($options['wsdl'])) {
     $wsdlFile = $options['wsdl'];
 } else {
-    $output = 'Optional params:' . PHP_EOL;
+    $output = 'All parameters:' . PHP_EOL;
 
     foreach ($opts as $key => $val) {
         $val = substr($val, 0, strlen($val) - 1);
@@ -55,13 +55,13 @@ if (isset($options['c'])) {
     $client = false;
 }
 
-if (isset($options['s'])) {
-    $server = $options['s'];
-} elseif (isset($options['server'])) {
-    $server = $options['server'];
-} else {
-    $server = false;
-}
+//if (isset($options['s'])) {
+//    $server = $options['s'];
+//} elseif (isset($options['server'])) {
+//    $server = $options['server'];
+//} else {
+//    $server = false;
+//}
 
 if (isset($options['n'])) {
     $namespace = $options['n'];
@@ -90,6 +90,13 @@ if (isset($options['o'])) {
 echo "Starts\n";
 $p = new WsdlParser($wsdlFile, $soapVersion);
 $wsdlTypes = $p->getWsdlTypes();
+if ($p->hasErrors()) {
+    echo "Errors:\n";
+    foreach ($p->getErrors() as $error) {
+        echo $error->toString(), "\n";
+    }
+}
+
 echo "Generates\n";
 $generator = new ClassGenerator();
 $classmapTypes = array();
@@ -112,7 +119,7 @@ if (false !== $client) {
         'wsdl' => $wsdlFile,
         'namespace' => $namespace,
         'name' => $client,
-        'operations' => $p->getOperations(),
+        'operations' => $p->getWsdlOperations(),
         'types' => $classmapTypes,
     );
     $file = $generator->writeClass($data, $outputDir);

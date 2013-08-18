@@ -35,6 +35,22 @@
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
+            <xs:element name="DisburseFunds">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="DisburseFundsRequest" nillable="true" type="q55:DisburseFundsRequest"
+                                    xmlns:q55="http://schemas.datacontract.org/2004/07/BDMS.NewModel"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="DisburseFundsResponse">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="DisburseFundsResult" nillable="true" type="q56:DisburseFundsResult"
+                                    xmlns:q56="http://schemas.datacontract.org/2004/07/BDMS.NewModel"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
         </xs:schema>
     </wsdl:types>
 

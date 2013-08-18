@@ -26,7 +26,7 @@ class Car
      *
      * The property has the following characteristics/restrictions:
      * - SchemaType: string
-     * - MaxLength: 20
+     * - maxLength: 20
      *
      * @var string
      */
@@ -51,8 +51,8 @@ class Car
      *
      * The property has the following characteristics/restrictions:
      * - SchemaType: string
-     * - MinLength: 0
-     * - MaxLength: 20
+     * - minLength: 0
+     * - maxLength: 20
      *
      * @var string
      */

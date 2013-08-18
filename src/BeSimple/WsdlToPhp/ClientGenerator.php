@@ -167,15 +167,16 @@ class ClientGenerator extends AbstractClassGenerator
         $lines[] = $this->spaces . "public function " . $operation['name'] . '(' . $this->generateFunctionArguments($operation) . ')';
         $lines[] = $this->spaces . '{';
         if (isset($operation['wrapParameters'])) {
-            $lines[] = $this->spaces . $this->spaces . '$arguments = new ' . $operation['wrapParameters'] . '();';
+            $lines[] = $this->spaces . $this->spaces . '$parameters = new ' . $operation['wrapParameters'] . '();';
             foreach ($operation['parameters'] as $name => $type) {
-                $lines[] = $this->spaces . $this->spaces . '$arguments->' . $name . ' = $' . $name . ';';
+                $lines[] = $this->spaces . $this->spaces . '$parameters->' . $name . ' = $' . $name . ';';
             }
         } else {
-            $lines[] = $this->spaces . $this->spaces . '$arguments = func_get_args();';
+            $lines[] = $this->spaces . $this->spaces . '$parameters = func_get_args();';
         }
         $lines[] = '';
-        $lines[] = $this->spaces . $this->spaces . 'return $this->__soapCall(\'' . $operation['name'] . '\', $arguments);';
+        $lines[] = $this->spaces . $this->spaces . 'return $this->__soapCall(\'' .
+            $operation['name'] . '\', array(\'parameters\' => $parameters));';
         $lines[] = $this->spaces . '}';
 
         return implode("\n", $lines);

@@ -66,6 +66,7 @@ class WsdlParserTest extends \PHPUnit_Framework_TestCase
             ),
             $parser->getWsdlTypes()
         );
+        $this->assertFalse($parser->hasErrors());
     }
 
     /**
@@ -102,6 +103,7 @@ class WsdlParserTest extends \PHPUnit_Framework_TestCase
             ),
             $parser->getWsdlTypes()
         );
+        $this->assertFalse($parser->hasErrors());
     }
 
     /**
@@ -131,6 +133,7 @@ class WsdlParserTest extends \PHPUnit_Framework_TestCase
             ),
             $parser->getWsdlTypes()
         );
+        $this->assertFalse($parser->hasErrors());
     }
 
     /**
@@ -149,10 +152,11 @@ class WsdlParserTest extends \PHPUnit_Framework_TestCase
                     'name' => 'char',
                     'properties' => array(
                         array(
-                            'restrictions' => array (),
                             'name' => '_',
                             'phpType' => 'int',
                             'wsdlType' => 'xs:int',
+                            'restrictions' => array (),
+                            'isNull' => false
                         ),
                     ),
                 ),
@@ -162,18 +166,33 @@ class WsdlParserTest extends \PHPUnit_Framework_TestCase
                     'name' => 'guid',
                     'properties' => array(
                         array (
-                            'restrictions' => array(
-                                'pattern' => '[\\da-fA-F]{8}-[\\da-fA-F]{4}-[\\da-fA-F]{4}-[\\da-fA-F]{4}-[\\da-fA-F]{12}',
-                            ),
                             'name' => '_',
                             'phpType' => 'string',
                             'wsdlType' => 'xs:string',
+                            'restrictions' => array(
+                                'pattern' => '[\\da-fA-F]{8}-[\\da-fA-F]{4}-[\\da-fA-F]{4}-[\\da-fA-F]{4}-[\\da-fA-F]{12}',
+                            ),
+                            'isNull' => false
                         ),
                     ),
                 ),
             ),
             $parser->getWsdlTypes()
         );
+        $this->assertFalse($parser->hasErrors());
+    }
+
+    /**
+     * @test
+     *
+     * Fix: parse elements as Type and as Property and creates few Types
+     */
+    public function getWsdlTypesResolveElements()
+    {
+        $wsdlPath = __DIR__ . '/../Fixtures/wsdl/elements.wsdl';
+        $parser = new WsdlParser($wsdlPath, SOAP_1_2);
+        $parser->getWsdlTypes();
+        $this->assertFalse($parser->hasErrors()/*, $parser->getErrors()[0]*/);
     }
 
     /**
@@ -185,17 +204,26 @@ class WsdlParserTest extends \PHPUnit_Framework_TestCase
         $parser = new WsdlParser($wsdlPath, SOAP_1_2);
 
         $this->assertEquals(
-            array (
-                array (
-                    'name' => 'IBillingDataManagementService',
+            array(
+                array(
+                    'name' => 'AddBlindPayment',
                     'parameters' => array(
                         'AddBlindPaymentRequest' => 'AddBlindPaymentRequest',
                     ),
-                    'wrapParameters' => '\\AddBlindPayment',
-                    'return' => '\\AddBlindPaymentResponse',
+                    'wrapParameters' => 'AddBlindPayment',
+                    'return' => 'AddBlindPaymentResponse',
                 ),
+                array(
+                    'name' => 'DisburseFunds',
+                    'parameters' => array(
+                        'DisburseFundsRequest' => 'DisburseFundsRequest'
+                    ),
+                    'wrapParameters' => 'DisburseFunds',
+                    'return' => 'DisburseFundsResponse',
+                )
             ),
             $parser->getWsdlOperations()
         );
+        $this->assertFalse($parser->hasErrors());
     }
 }
