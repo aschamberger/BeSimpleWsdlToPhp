@@ -18,7 +18,7 @@ use BeSimple\WsdlToPhp\WsdlParser;
 class WsdlParserTest extends \PHPUnit_Framework_TestCase
 {
     /**
-     * @~test
+     * @test
      */
     public function getWsdlTypesSimpleAndIncludes()
     {
@@ -69,7 +69,7 @@ class WsdlParserTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @~test
+     * @test
      */
     public function getWsdlTypesComplex()
     {
@@ -105,7 +105,7 @@ class WsdlParserTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @~test
+     * @test
      */
     public function getWsdlTypesCascade()
     {
@@ -134,7 +134,7 @@ class WsdlParserTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @~test
+     * @test
      */
     public function getWsdlTypesRestrictions()
     {
@@ -184,11 +184,18 @@ class WsdlParserTest extends \PHPUnit_Framework_TestCase
         $wsdlPath = __DIR__ . '/../Fixtures/wsdl/operations.wsdl';
         $parser = new WsdlParser($wsdlPath, SOAP_1_2);
 
-        var_dump($parser->getWsdlOperations());exit;
-
         $this->assertEquals(
-            array(),
-            $parser->getWsdlTypes()
+            array (
+                array (
+                    'name' => 'IBillingDataManagementService',
+                    'parameters' => array(
+                        'AddBlindPaymentRequest' => 'AddBlindPaymentRequest',
+                    ),
+                    'wrapParameters' => '\\AddBlindPayment',
+                    'return' => '\\AddBlindPaymentResponse',
+                ),
+            ),
+            $parser->getWsdlOperations()
         );
     }
 }

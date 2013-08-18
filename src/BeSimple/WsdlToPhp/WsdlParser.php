@@ -66,32 +66,6 @@ class WsdlParser
     private $wsdlTypes = array();
 
     /**
-     * @var array
-     */
-    private $simpleTypes = array(
-        'anyType',
-        'anyURI',
-        'base64',
-        'base64Binary',
-        'boolean',
-        'byte',
-        'dateTime',
-        'decimal',
-        'double',
-        'float',
-        'int',
-        'long',
-        'QName',
-        'short',
-        'string',
-        'unsignedByte',
-        'unsignedInt',
-        'unsignedLong',
-        'unsignedShort',
-        'char',
-    );
-
-    /**
      * Constructor.
      *
      * @param string $wsdlFile    WSDL file name
@@ -210,12 +184,12 @@ class WsdlParser
                 $tns = '';//$this->domDocument->lookupNamespaceURI($prefix).'/';
                 $outputTypeNS = $tns.$outputType;
 
-                var_dump($this->wsdlTypes);
+                $this->getWsdlTypes();
                 $inputTypeWsdl = $this->wsdlTypes[$inputTypeNS];
                 $outputTypeWsdl = $this->wsdlTypes[$outputTypeNS];
 
                 $parameters = array();
-                $this->getOperationParameters($parameters, $wsdlTypes, $inputTypeNS);
+                $this->getOperationParameters($parameters, $this->wsdlTypes, $inputTypeNS);
 
                 $wsdlOperations[] = array(
                     'name' => $operationName,

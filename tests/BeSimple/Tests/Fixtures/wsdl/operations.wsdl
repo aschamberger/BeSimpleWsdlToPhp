@@ -28,6 +28,13 @@
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
+            <xs:element name="AddBlindPaymentResponse">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element xmlns:q2="http://schemas.datacontract.org/2004/07/BDMS.NewModel" minOccurs="0" name="AddBlindPaymentResult" nillable="true" type="q2:Response" />
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
         </xs:schema>
     </wsdl:types>
 
