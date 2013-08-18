@@ -94,6 +94,20 @@ abstract class AbstractClassGenerator
         'unset',
     );
 
+
+    protected static $phpTypes = array(
+        'boolean',
+        'bool',
+        'integer',
+        'int',
+        'float',
+        'double',
+        'string',
+        'array',
+        'object',
+        'resource',
+    );
+
     protected $backup;
     protected $extension;
     protected $overwrite;
@@ -236,5 +250,28 @@ abstract class AbstractClassGenerator
         }
 
         return $class;
+    }
+
+    /**
+     * Generate function arguments.
+     *
+     * @param array(string=>string) $args
+     *
+     * @return string
+     */
+    protected function generateFunctionArguments($args, $isRequired = true)
+    {
+        $parameters = array();
+
+        foreach ($args as $name => $type) {
+            if (in_array($type, self::$phpTypes)) {
+                $arg = '$' . $name;
+            } else {
+                $arg = ($type . ' $' . $name);
+            }
+            $parameters[] = ($arg . ($isRequired?'':' = null'));
+        }
+
+        return implode(', ', $parameters);
     }
 }
