@@ -156,9 +156,20 @@ class ClientGenerator extends AbstractClassGenerator
             $this->generateFunctionArguments($operation['parameters']) . ')';
         $lines[] = $this->spaces . '{';
         if (isset($operation['wrapParameters'])) {
-            $lines[] = $this->spaces . $this->spaces . '$parameters = new ' . $operation['wrapParameters'] . '();';
-            foreach ($operation['parameters'] as $name => $type) {
-                $lines[] = $this->spaces . $this->spaces . '$parameters->' . $name . ' = $' . $name . ';';
+
+            if ($this->getOption('generate_constructor')) {
+                throw new Exception('It does not implemented yet');
+            } else {
+                $lines[] = $this->spaces . $this->spaces . '$parameters = new ' . $operation['wrapParameters'] . '();';
+                if ('public' == $this->getOption('access')) {
+                    foreach ($operation['parameters'] as $name => $type) {
+                        $lines[] = $this->spaces . $this->spaces . '$parameters->' . $name . ' = $' . $name . ';';
+                    }
+                } else {
+                    foreach ($operation['parameters'] as $name => $type) {
+                        $lines[] = $this->spaces . $this->spaces . '$parameters->set' . ucfirst($name) . '($' . $name . ');';
+                    }
+                }
             }
         } else {
             $lines[] = $this->spaces . $this->spaces . '$parameters = func_get_args();';

@@ -20,75 +20,142 @@ error_reporting(E_ALL | E_STRICT);
 include getcwd() .'/vendor/autoload.php';
 
 $opts = array(
-    'w' => 'wsdl:',
-    'c' => 'client:',
-//    's' => 'server:',
-    'n' => 'namespace:',
-    'v' => 'soap_version:',
-    'o' => 'output_dir:',
+    'wsdl' => array(
+        'shortKey' => 'w',
+        'access' => 'required',
+        'default' => null,
+        'doc' => 'Required! Path or url to wsdl file.',
+    ),
+    'client' => array(
+        'shortKey' => 'c',
+        'access' => 'optional',
+        'default' => false,
+        'doc' => 'Name of client class, if it is empty client will not be generated.',
+    ),
+    'namespace' => array(
+        'shortKey' => 'n',
+        'access' => 'optional',
+        'default' => false,
+        'doc' => 'Root namespace of generated classes.',
+    ),
+    'soap_version' => array(
+        'shortKey' => 'v',
+        'access' => 'optional',
+        'default' => SOAP_1_1,
+        'doc' => 'Soap version: 1 => 1.1 or 2 => 1.2. Default value: 1 => 1.1',
+    ),
+    'output_dir' => array(
+        'shortKey' => 'o',
+        'access' => 'optional',
+        'default' => getcwd(),
+        'doc' => 'Output dir for classes. Default current dir.',
+    ),
+    'extension' => array(
+        'shortKey' => null,
+        'access' => 'optional',
+        'default' => 'php',
+        'doc' => 'Extension of generated files. Default value: php',
+    ),
+    'indent' => array(
+        'shortKey' => null,
+        'access' => 'optional',
+        'default' => 4,
+        'doc' => 'How much indent would be used in generated files. Default value: 4',
+    ),
+    'overwrite' => array(
+        'shortKey' => null,
+        'access' => 'no_values',
+        'default' => true,
+        'doc' => 'Disable overwrite present files. It does not have parameters.',
+    ),
+    'backup' => array(
+        'shortKey' => null,
+        'access' => 'no_values',
+        'default' => true,
+        'doc' => 'Disable backup old files. It does not have parameters.',
+    ),
+    'generate_constructor' => array(
+        'shortKey' => null,
+        'access' => 'no_values',
+        'default' => false,
+        'reverse' => true,
+        'doc' => 'Generate constructor in Types. It does not have parameters.',
+    ),
+    'instance_on_getter' => array(
+        'shortKey' => null,
+        'access' => 'no_values',
+        'default' => false,
+        'reverse' => true,
+        'doc' => 'Make instance of related class on getter when property is null. ' . "\n\t" .
+            'It does not have parameters. It does not work with access=public',
+    ),
+    'access' => array(
+        'shortKey' => null,
+        'access' => 'optional',
+        'default' => 'public',
+        'doc' => 'Access level to properties. Default value: public.',
+    ),
 );
 
-$options = getopt(implode(':', array_keys($opts)) . ':', array_values($opts));
+$shortOptions = '';
+$longOptions = array();
+foreach ($opts as $key => $vals) {
+    $mark = '';
+    switch ($vals['access']) {
+        case 'no_values';
+            break;
+        case 'optional';
+            $mark = '::';
+            break;
+        case 'required';
+            $mark = ':';
+            break;
+        default:
+//            throw new \Exception();
+    }
+    if ($vals['shortKey']) {
+        $shortOptions .= $vals['shortKey'] . $mark;
+    }
+    $longOptions[] = $key . $mark;
+}
+$options = getopt($shortOptions, $longOptions);
 
-if (isset($options['w'])) {
-    $wsdlFile = $options['w'];
-} elseif (isset($options['wsdl'])) {
-    $wsdlFile = $options['wsdl'];
-} else {
-    $output = 'All parameters:' . PHP_EOL;
-
-    foreach ($opts as $key => $val) {
-        $val = substr($val, 0, strlen($val) - 1);
-        $output .= "-{$key} or --{$val}" . PHP_EOL;
+$outputArr = array();
+$defaultOptions = array();
+foreach ($opts as $key => $vals) {
+    $defaultOptions[$key] = $vals['default'];
+    $optParam = '<option>';
+    $optParamLong = '=';
+    if ('no_values' === $vals['access']) {
+        $optParam = '';
+        $optParamLong = '';
     }
 
-    die(
-        'Parameter -w <file> or --wsdl <file> required!' . PHP_EOL . PHP_EOL . $output
-    );
+    $shortKey = '';
+    if ($vals['shortKey']) {
+        $shortKey = " or -{$vals['shortKey']}{$optParam}";
+    }
+
+    $outputArr[] = "--{$key}$optParamLong{$optParam}{$shortKey}" . (empty($vals['doc'])?'':' — ' . $vals['doc']);
+
+    if (isset($options[$vals['shortKey']])) {
+        $options[$key] = $options[$vals['shortKey']];
+        unset($options[$vals['shortKey']]);
+    }
+
+    if (!empty($vals['reverse']) && isset($options[$key])) {
+        $options[$key] = !$options[$key];
+    }
 }
+$options = array_merge($defaultOptions, $options);
 
-if (isset($options['c'])) {
-    $client = $options['c'];
-} elseif (isset($options['client'])) {
-    $client = $options['client'];
-} else {
-    $client = false;
-}
 
-//if (isset($options['s'])) {
-//    $server = $options['s'];
-//} elseif (isset($options['server'])) {
-//    $server = $options['server'];
-//} else {
-//    $server = false;
-//}
-
-if (isset($options['n'])) {
-    $namespace = $options['n'];
-} elseif (isset($options['namespace'])) {
-    $namespace = $options['namespace'];
-} else {
-    $namespace = false;
-}
-
-if (isset($options['v']) && $options['v'] == '1.2') {
-    $soapVersion = SOAP_1_2;
-} elseif (isset($options['soap_version']) && $options['soap_version'] == '1.2') {
-    $soapVersion = SOAP_1_2;
-} else {
-    $soapVersion = SOAP_1_1;
-}
-
-if (isset($options['o'])) {
-    $outputDir = $options['o'];
-} elseif (isset($options['output_dir'])) {
-    $outputDir = $options['output_dir'];
-} else {
-    $outputDir = getcwd();
+if (empty($options['wsdl'])) {
+    die('Path to WSDL file is required!' . PHP_EOL . 'All parameters:' . PHP_EOL . implode(PHP_EOL, $outputArr) . PHP_EOL);
 }
 
 echo "Starts\n";
-$p = new WsdlParser($wsdlFile, $soapVersion);
+$p = new WsdlParser($options['wsdl'], $options['soap_version']);
 $wsdlTypes = $p->getWsdlTypes();
 if ($p->hasErrors()) {
     echo "Errors:\n";
@@ -98,14 +165,14 @@ if ($p->hasErrors()) {
 }
 
 echo "Generates\n";
-$generator = new ClassGenerator();
+$generator = new ClassGenerator($options, $wsdlTypes);
 $classmapTypes = array();
 if (!empty($wsdlTypes)) {
     foreach ($wsdlTypes as $type) {
-        if (!empty($namespace)) {
-            $type['namespace'] = $namespace . (empty($type['namespace']) ? '' : '\\' . $type['namespace']);
+        if (!empty($options['namespace'])) {
+            $type['namespace'] = $options['namespace'] . (empty($type['namespace']) ? '' : '\\' . $type['namespace']);
         }
-        $file = $generator->writeClass($type, $outputDir);
+        $file = $generator->writeClass($type, $options['output_dir']);
         echo 'written file ' . $file . PHP_EOL;
         $classmapTypes[$type['name']] = '\\' . $type['namespace'] .'\\' . $type['name'];
     }
@@ -113,15 +180,15 @@ if (!empty($wsdlTypes)) {
     echo "No types found\n";
 }
 
-if (false !== $client) {
-    $generator = new ClientGenerator();
+if (false !== $options['client']) {
+    $generator = new ClientGenerator($options, $wsdlTypes);
     $data = array(
-        'wsdl' => $wsdlFile,
-        'namespace' => $namespace,
-        'name' => $client,
+        'wsdl' => $options['wsdl'],
+        'namespace' => $options['namespace'],
+        'name' => $options['client'],
         'operations' => $p->getWsdlOperations(),
         'types' => $classmapTypes,
     );
-    $file = $generator->writeClass($data, $outputDir);
+    $file = $generator->writeClass($data, $options['output_dir']);
     echo 'written file ' . $file . PHP_EOL;
 }

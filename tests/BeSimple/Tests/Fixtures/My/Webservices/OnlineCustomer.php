@@ -20,7 +20,7 @@ class OnlineCustomer extends Customer
      *
      * @var string
      */
-    protected $email;
+    public $email;
 
     /**
      * website
@@ -30,55 +30,5 @@ class OnlineCustomer extends Customer
      *
      * @var string
      */
-    protected $website;
-
-    /**
-     * Constructor.
-     *
-     * @param string $email
-     * @param string $website
-     */
-    public function __construct($email, $website)
-    {
-        $this->email = $email;
-        $this->website = $website;
-    }
-
-    /**
-     * @param string $email
-     *
-     * @return OnlineCustomer
-     */
-    public function setEmail($email)
-    {
-        $this->email = $email;
-        return $this;
-    }
-
-    /**
-     * @return string
-     */
-    public function getEmail()
-    {
-        return $this->email;
-    }
-
-    /**
-     * @param string $website
-     *
-     * @return OnlineCustomer
-     */
-    public function setWebsite($website)
-    {
-        $this->website = $website;
-        return $this;
-    }
-
-    /**
-     * @return string
-     */
-    public function getWebsite()
-    {
-        return $this->website;
-    }
+    public $website;
 }
