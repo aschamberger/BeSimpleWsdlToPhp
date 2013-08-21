@@ -413,6 +413,41 @@ class WsdlParser
     }
 
     /**
+     * Recursive merge 2 or more arrays
+     *
+     * @return array
+     */
+    public static function arrayMergeRecursive()
+    {
+        if (func_num_args() < 2) {
+            trigger_error(__FUNCTION__ . ' needs two or more array arguments', E_USER_WARNING);
+            return null;
+        }
+        $arrays = func_get_args();
+        $merged = array();
+        while ($arrays) {
+            $array = array_shift($arrays);
+            if (!is_array($array)) {
+                trigger_error(__FUNCTION__ . ' encountered a non array argument', E_USER_WARNING);
+                return null;
+            }
+            if (!$array) continue;
+            foreach ($array as $key => $value) {
+                if (is_string($key)) {
+                    if (is_array($value) && array_key_exists($key, $merged) && is_array($merged[$key])) {
+                        $merged[$key] = static::arrayMergeRecursive($merged[$key], $value);
+                    } else {
+                        $merged[$key] = $value;
+                    }
+                } else {
+                    $merged[] = $value;
+                }
+            }
+        }
+        return $merged;
+    }
+
+    /**
      * Extracts WSDL types from WSDL file.
      *
      * @return array(string=>mixed)
@@ -492,8 +527,13 @@ class WsdlParser
                             0,
                             $wsdlTypes[$targetNamespace . $attrName]['wsdl']
                         );
+                        $wsdlTypes[$targetNamespace . $attrName] = $this->arrayMergeRecursive(
+                            $wsdlTypes[$targetNamespace . $attrName],
+                            $wsdlType
+                        );
+                    } else {
+                        $wsdlTypes[$targetNamespace . $attrName] = $wsdlType;
                     }
-                    $wsdlTypes[$targetNamespace . $attrName] = $wsdlType;
                 }
             }
         }

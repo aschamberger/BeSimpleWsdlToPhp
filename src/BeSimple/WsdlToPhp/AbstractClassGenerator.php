@@ -94,25 +94,70 @@ abstract class AbstractClassGenerator
         'unset',
     );
 
-    protected $backup;
-    protected $extension;
-    protected $overwrite;
-    protected $spaces;
+
+    protected static $phpTypes = array(
+        'boolean',
+        'bool',
+        'integer',
+        'int',
+        'float',
+        'double',
+        'string',
+        'array',
+        'object',
+        'resource',
+    );
+
+    protected $backup = true;
+    protected $extension = 'php';
+    protected $overwrite = true;
+    protected $spaces = 4;
+
+    private $options = array(
+        'overwrite' => true,
+        'backup' => true,
+        'extension' => 'php',
+        'indent' => 4,
+        'generate_constructor' => false,
+        'instance_on_getter' => false,
+        'access' => 'public',
+    );
+
+    /**
+     * @var array
+     */
+    protected $wsdlTypes = array();
 
     /**
      * Constructor.
      *
-     * @param string  $extension PHP file extension
-     * @param int     $numSpaces Number of spaces to indent
-     * @param boolean $overwrite Overwrite existing target file
-     * @param boolean $backup    Backup existing target file
+     * @param array $options keys:
+     *  extension - PHP file extension
+     *  indent - Number of spaces to indent
+     *  overwrite - Overwrite existing target file
+     *  backup - Backup existing target file
      */
-    public function __construct($extension = 'php', $numSpaces = 4, $overwrite = true, $backup = true)
+    public function __construct(array $options = array(), $wsdlTypes = array())
     {
-        $this->extension = $extension;
-        $this->spaces = str_repeat(' ', $numSpaces);
-        $this->overwrite = $overwrite;
-        $this->backup = $backup;
+        $this->wsdlTypes = $wsdlTypes;
+        $this->options = array_merge($this->options, $options);
+        $properties = array('extension', 'overwrite', 'backup');
+        foreach ($options as $option => $value) {
+            if (in_array($option, $properties)) {
+                $this->$option = $value;
+            }
+        }
+        $this->spaces = str_repeat(' ', $this->getOption('indent'));
+    }
+
+    /**
+     * @param string $name
+     *
+     * @return mixed
+     */
+    public function getOption($name)
+    {
+        return $this->options[$name];
     }
 
     /**
@@ -236,5 +281,31 @@ abstract class AbstractClassGenerator
         }
 
         return $class;
+    }
+
+    /**
+     * Generate function arguments.
+     *
+     * @param array(string=>string) $args
+     * @param bool $isRequired
+     * @param array $data
+     *
+     * @return string
+     */
+    protected function generateFunctionArguments($args, $isRequired = true)
+    {
+        $parameters = array();
+        foreach ($args as $name => $type) {
+            if (!in_array($type, self::$phpTypes) &&
+                (empty($this->wsdlTypes) || !empty($this->wsdlTypes[$type]['properties'][0]['name']))
+            ) {
+                $arg = ($type . ' $' . $name);
+            } else {
+                $arg = '$' . $name;
+            }
+            $parameters[] = ($arg . ($isRequired?'':' = null'));
+        }
+
+        return implode(', ', $parameters);
     }
 }

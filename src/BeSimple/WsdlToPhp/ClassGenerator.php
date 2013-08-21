@@ -83,7 +83,19 @@ class ClassGenerator extends AbstractClassGenerator
         }
 
         foreach ($data['properties'] as $property) {
-            $lines[] = $this->generateProperty($property);
+            if ($line = $this->generateProperty($property)) {
+                $lines[] = $line;
+            }
+        }
+
+        if ($constructor = $this->generateConstructor($data)) {
+            $lines[] = $constructor;
+        }
+
+        foreach ($data['properties'] as $property) {
+            if ($line = $this->generateGettersAndSetters($data, $property)) {
+                $lines[] = $line;
+            }
         }
 
         return implode("\n\n", $lines);
@@ -106,6 +118,60 @@ class ClassGenerator extends AbstractClassGenerator
                 $lines[] = $this->spaces . 'const ' . $name . strtoupper($enum) . ' = \'' . $enum . '\';';
             }
         }
+
+        return implode("\n", $lines);
+    }
+
+    protected function getProperties($properties, $isRequired)
+    {
+        foreach ($properties as $key => $val) {
+            if ($isRequired == $val['isNull']) {
+                unset($properties[$key]);
+            }
+        }
+        return $properties;
+    }
+
+    /**
+     * Generate constructor.
+     *
+     * @param array(string=>mixed) $data Data array
+     *
+     * @return string
+     */
+    protected function generateConstructor($data)
+    {
+        if (empty($data['properties']) ||
+            empty($data['properties'][0]['name']) ||
+            !$this->getOption('generate_constructor')
+        ) {
+            return '';
+        }
+        $lines = array();
+        $lines[] = $this->spaces . '/**';
+        $lines[] = $this->spaces . ' * Constructor.';
+        $lines[] = $this->spaces . ' *';
+        $reqArgs = $this->getProperties($data['properties'], true, $data);
+        $optArgs = $this->getProperties($data['properties'], false, $data);
+        $ops = array();
+        foreach ($reqArgs + $optArgs as $property) {
+            if (empty($property['name'])) continue;
+            $localName = lcfirst($property['name']);
+            $lines[] = $this->spaces . " * @param {$property['phpType']} \${$localName}";
+            $ops[] = $this->generateFunctionArguments(
+                array($localName => $property['phpType']),
+                !$property['isNull']
+            );
+
+        }
+        $lines[] = $this->spaces . ' */';
+        $lines[] = $this->spaces . 'public function __construct(' . implode(', ', $ops) . ')';
+        $lines[] = $this->spaces . '{';
+        foreach ($reqArgs + $optArgs as $property) {
+            $lines[] = $this->spaces . $this->spaces . "\$this->{$property['name']} = \$" .
+                lcfirst($property['name']) . ';';
+        }
+        $lines[] = $this->spaces . '}';
 
         return implode("\n", $lines);
     }
@@ -134,7 +200,8 @@ class ClassGenerator extends AbstractClassGenerator
             $lines[] = $this->spaces . ' *';
             $lines[] = $this->spaces . ' * The property can have one of the following values:';
             foreach ($property['enum'] as $enum) {
-                $lines[] = $this->spaces . ' * - self::' . strtoupper($property['name']) . '_' . strtoupper($enum) . ' (' . $enum . ')';
+                $lines[] = $this->spaces . ' * - self::' . strtoupper($property['name']) . '_' . strtoupper($enum) .
+                    ' (' . $enum . ')';
             }
         }
         $lines[] = $this->spaces . ' *';
@@ -146,7 +213,57 @@ class ClassGenerator extends AbstractClassGenerator
         $lines[] = $this->spaces . ' *';
         $lines[] = $this->spaces . ' * @var ' . $property['phpType'];
         $lines[] = $this->spaces . ' */';
-        $lines[] = $this->spaces . 'public $' . $property['name'] . ($property['isNull']?' = null':'') . ';';
+        $lines[] = $this->spaces . $this->getOption('access') . ' $' . $property['name'] .
+            ($property['isNull']?' = null':'') . ';';
+
+        return implode("\n", $lines);
+    }
+
+    /**
+     * Generate getters and setters
+     *
+     * @param array(string=>mixed) $data Data array
+     * @param array(string=>string) $property Property information
+     *
+     * @return string
+     */
+    protected function generateGettersAndSetters($data, $property)
+    {
+        if (empty($property['name']) || 'public' == $this->getOption('access')) {
+            return '';
+        }
+
+        $localName = lcfirst($property['name']);
+
+        $lines = array();
+        $lines[] = $this->spaces . '/**';
+        $lines[] = $this->spaces . ' * @param ' . $property['phpType'] . ' $' . $localName;
+        $lines[] = $this->spaces . ' *';
+        $lines[] = $this->spaces . ' * @return ' . $this->createValidClassName($data['name'], $data['namespace']);
+        $lines[] = $this->spaces . ' */';
+        $lines[] = $this->spaces . 'public function set' . ucfirst($property['name']) . '(' .
+            $this->generateFunctionArguments(array($localName => $property['phpType']), true, $data)  . ')';
+        $lines[] = $this->spaces . '{';
+        $lines[] = $this->spaces . $this->spaces . '$this->' . $property['name'] . ' = $' . $localName . ';';
+        $lines[] = $this->spaces . $this->spaces . 'return $this;';
+        $lines[] = $this->spaces . '}';
+        $lines[] = '';
+        $lines[] = $this->spaces . '/**';
+        $lines[] = $this->spaces . ' * @return ' . $property['phpType'];
+        $lines[] = $this->spaces . ' */';
+        $lines[] = $this->spaces . 'public function get' . ucfirst($property['name']) . '()';
+        $lines[] = $this->spaces . '{';
+        if (!in_array($property['phpType'], self::$phpTypes) &&
+            !empty($this->wsdlTypes[$property['phpType']]['properties'][0]['name']) &&
+            $this->getOption('instance_on_getter')
+        ) {
+            $lines[] = $this->spaces . $this->spaces . 'if (null === $this->' . $property['name'] . ') {';
+            $lines[] = $this->spaces . $this->spaces . $this->spaces . '$this->' . $property['name'] . ' = new ' .
+                $property['phpType'] . '();';
+            $lines[] = $this->spaces . $this->spaces . '}';
+        }
+        $lines[] = $this->spaces . $this->spaces . 'return $this->' . $property['name'] . ';';
+        $lines[] = $this->spaces . '}';
 
         return implode("\n", $lines);
     }

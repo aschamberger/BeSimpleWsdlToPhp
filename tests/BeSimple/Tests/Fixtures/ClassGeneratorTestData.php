@@ -38,8 +38,8 @@ return array(
         'properties' => array(
             array(
                 'name' => 'brand',
-                'phpType' => 'string',
-                'wsdlType' => 'string',
+                'phpType' => 'Brand',
+                'wsdlType' => 'Brand',
                 'enum' => array(
                     'Audi',
                     'BMW',
@@ -48,7 +48,7 @@ return array(
                 'restrictions' => array(
                     'maxLength' => 20
                 ),
-                'isNull' => false,
+                'isNull' => true,
             ),
             array(
                 'name' => 'model',

@@ -27,7 +27,10 @@ class ClassGeneratorTest extends \PHPUnit_Framework_TestCase
 
     public function testGenerator()
     {
-        $generator = new ClassGenerator();
+        $generator = new ClassGenerator(
+            array('access' => 'protected', 'generate_constructor' => true, 'instance_on_getter' => true),
+            array('Brand' => array('properties' => array(array('name' => 'someVar'))))
+        );
         $targetDir = sys_get_temp_dir();
 
         $target = $generator->writeClass($this->testData['customer'], $targetDir);

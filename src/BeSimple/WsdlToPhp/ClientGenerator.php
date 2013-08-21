@@ -20,18 +20,6 @@ namespace BeSimple\WsdlToPhp;
  */
 class ClientGenerator extends AbstractClassGenerator
 {
-    protected static $phpTypes = array(
-        'boolean',
-        'bool',
-        'integer',
-        'int',
-        'float',
-        'double',
-        'string',
-        'array',
-        'object',
-        'resource',
-    );
 
     /**
      * Generate class.
@@ -164,12 +152,24 @@ class ClientGenerator extends AbstractClassGenerator
         }
         $lines[] = $this->spaces . ' * @return ' . $operation['return'];
         $lines[] = $this->spaces . ' */';
-        $lines[] = $this->spaces . "public function " . $operation['name'] . '(' . $this->generateFunctionArguments($operation) . ')';
+        $lines[] = $this->spaces . "public function " . $operation['name'] . '(' .
+            $this->generateFunctionArguments($operation['parameters']) . ')';
         $lines[] = $this->spaces . '{';
         if (isset($operation['wrapParameters'])) {
-            $lines[] = $this->spaces . $this->spaces . '$parameters = new ' . $operation['wrapParameters'] . '();';
-            foreach ($operation['parameters'] as $name => $type) {
-                $lines[] = $this->spaces . $this->spaces . '$parameters->' . $name . ' = $' . $name . ';';
+
+            if ($this->getOption('generate_constructor')) {
+                throw new Exception('It does not implemented yet');
+            } else {
+                $lines[] = $this->spaces . $this->spaces . '$parameters = new ' . $operation['wrapParameters'] . '();';
+                if ('public' == $this->getOption('access')) {
+                    foreach ($operation['parameters'] as $name => $type) {
+                        $lines[] = $this->spaces . $this->spaces . '$parameters->' . $name . ' = $' . $name . ';';
+                    }
+                } else {
+                    foreach ($operation['parameters'] as $name => $type) {
+                        $lines[] = $this->spaces . $this->spaces . '$parameters->set' . ucfirst($name) . '($' . $name . ');';
+                    }
+                }
             }
         } else {
             $lines[] = $this->spaces . $this->spaces . '$parameters = func_get_args();';
@@ -180,27 +180,5 @@ class ClientGenerator extends AbstractClassGenerator
         $lines[] = $this->spaces . '}';
 
         return implode("\n", $lines);
-    }
-
-    /**
-     * Generate function arguments.
-     *
-     * @param array(string=>string) $operation Operationinformation
-     *
-     * @return string
-     */
-    protected function generateFunctionArguments($operation)
-    {
-        $parameters = array();
-
-        foreach ($operation['parameters'] as $name => $type) {
-            if (!in_array($type, self::$phpTypes)) {
-                $parameters[] = $type . ' $' . $name;
-            } else {
-                $parameters[] = '$' . $name;
-            }
-        }
-
-        return implode(', ', $parameters);
     }
 }
