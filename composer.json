@@ -24,5 +24,9 @@
     },
     "autoload": {
        "psr-0": { "BeSimple\\WsdlToPhp": "src/" }
+    },
+    "support": {
+        "issues": "https://github.com/BeSimple/BeSimpleWsdlToPhp/issues",
+        "source": "https://github.com/BeSimple/BeSimpleWsdlToPhp"
     }
 }
