@@ -25,12 +25,12 @@ class Car
      * - self::BRAND_VOLKSWAGEN (Volkswagen)
      *
      * The property has the following characteristics/restrictions:
-     * - SchemaType: string
-     * - MaxLength: 20
+     * - SchemaType: Brand
+     * - maxLength: 20
      *
-     * @var string
+     * @var Brand
      */
-    public $brand;
+    protected $brand = null;
 
     /**
      * model
@@ -40,7 +40,7 @@ class Car
      *
      * @var string
      */
-    public $model;
+    protected $model;
 
     /**
      * color
@@ -51,10 +51,84 @@ class Car
      *
      * The property has the following characteristics/restrictions:
      * - SchemaType: string
-     * - MinLength: 0
-     * - MaxLength: 20
+     * - minLength: 0
+     * - maxLength: 20
      *
      * @var string
      */
-    public $color;
+    protected $color;
+
+    /**
+     * Constructor.
+     *
+     * @param string $model
+     * @param string $color
+     * @param Brand $brand
+     */
+    public function __construct($model, $color, Brand $brand = null)
+    {
+        $this->model = $model;
+        $this->color = $color;
+        $this->brand = $brand;
+    }
+
+    /**
+     * @param Brand $brand
+     *
+     * @return Car
+     */
+    public function setBrand(Brand $brand)
+    {
+        $this->brand = $brand;
+        return $this;
+    }
+
+    /**
+     * @return Brand
+     */
+    public function getBrand()
+    {
+        if (null === $this->brand) {
+            $this->brand = new Brand();
+        }
+        return $this->brand;
+    }
+
+    /**
+     * @param string $model
+     *
+     * @return Car
+     */
+    public function setModel($model)
+    {
+        $this->model = $model;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getModel()
+    {
+        return $this->model;
+    }
+
+    /**
+     * @param string $color
+     *
+     * @return Car
+     */
+    public function setColor($color)
+    {
+        $this->color = $color;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getColor()
+    {
+        return $this->color;
+    }
 }

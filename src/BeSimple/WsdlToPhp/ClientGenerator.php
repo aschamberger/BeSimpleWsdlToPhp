@@ -20,18 +20,6 @@ namespace BeSimple\WsdlToPhp;
  */
 class ClientGenerator extends AbstractClassGenerator
 {
-    protected static $phpTypes = array(
-        'boolean',
-        'bool',
-        'integer',
-        'int',
-        'float',
-        'double',
-        'string',
-        'array',
-        'object',
-        'resource',
-    );
 
     /**
      * Generate class.
@@ -46,7 +34,12 @@ class ClientGenerator extends AbstractClassGenerator
         $lines[] = '<?php';
         $lines[] = '';
         $lines[] = $this->generateNamespace($data);
-        $lines[] = 'use BeSimple\\SoapClient\\SoapClient as BeSimpleSoapClient;';
+
+        if (empty($data['parent'])) {
+            $data['parent'] = '\\SoapClient';
+        }
+
+        $lines[] = 'use ' . $data['parent'] . ' as BaseSoapClient;';
         $lines[] = '';
         $lines[] = $this->generateDocBlock($data);
         $lines[] = $this->generateClassName($data);
@@ -67,7 +60,7 @@ class ClientGenerator extends AbstractClassGenerator
     protected function generateClassName($data)
     {
         $class = 'class ' . $this->createValidClassName($data['name'], $data['namespace']);
-        $class .= ' extends BeSimpleSoapClient';
+        $class .= ' extends BaseSoapClient';
 
         return $class;
     }
@@ -102,6 +95,12 @@ class ClientGenerator extends AbstractClassGenerator
     protected function generateConstructor($data)
     {
         $lines = array();
+        $lines[] = $this->spaces . 'protected $classMap = array(';
+        if (!empty($data['types'])) foreach ($data['types'] as $name => $type) {
+            $lines[] = str_repeat($this->spaces, 2) . "'" . $name . "' => '" . $type . "',";
+        }
+        $lines[] = $this->spaces . ');';
+        $lines[] = '';
         $lines[] = $this->spaces . '/**';
         $lines[] = $this->spaces . ' * Constructor.';
         $lines[] = $this->spaces . ' *';
@@ -111,14 +110,15 @@ class ClientGenerator extends AbstractClassGenerator
         $lines[] = $this->spaces . 'public function __construct($wsdl, array $options = array())';
         $lines[] = $this->spaces . '{';
         $lines[] = $this->spaces . $this->spaces . 'if (!isset($options[\'classmap\'])) {';
-        $lines[] = $this->spaces . $this->spaces . $this->spaces . '$options[\'classmap\'] = array(';
-        foreach ($data['types'] as $name => $type) {
-            $lines[] = str_repeat($this->spaces, 4) . "'" . $name . "' => '" . $type . "',";
-        }
-        $lines[] = $this->spaces . $this->spaces . $this->spaces . ');';
+        $lines[] = $this->spaces . $this->spaces . $this->spaces . '$options[\'classmap\'] = $this->getClassMap();';
         $lines[] = $this->spaces . $this->spaces . '}';
         $lines[] = '';
         $lines[] = $this->spaces . $this->spaces . 'return parent::__construct($wsdl, $options);';
+        $lines[] = $this->spaces . '}';
+        $lines[] = '';
+        $lines[] = $this->spaces . 'public function getClassMap()';
+        $lines[] = $this->spaces . '{';
+        $lines[] = $this->spaces . $this->spaces . 'return $this->classMap;';
         $lines[] = $this->spaces . '}';
 
         return implode("\n", $lines);
@@ -152,42 +152,33 @@ class ClientGenerator extends AbstractClassGenerator
         }
         $lines[] = $this->spaces . ' * @return ' . $operation['return'];
         $lines[] = $this->spaces . ' */';
-        $lines[] = $this->spaces . "public function " . $operation['name'] . '(' . $this->generateFunctionArguments($operation) . ')';
+        $lines[] = $this->spaces . "public function " . $operation['name'] . '(' .
+            $this->generateFunctionArguments($operation['parameters']) . ')';
         $lines[] = $this->spaces . '{';
         if (isset($operation['wrapParameters'])) {
-            $lines[] = $this->spaces . $this->spaces . '$arguments = new ' . $operation['wrapParameters'] . '();';
-            foreach ($operation['parameters'] as $name => $type) {
-                $lines[] = $this->spaces . $this->spaces . '$arguments->' . $name . ' = $' . $name . ';';
+
+            if ($this->getOption('generate_constructor')) {
+                throw new Exception('It does not implemented yet');
+            } else {
+                $lines[] = $this->spaces . $this->spaces . '$parameters = new ' . $operation['wrapParameters'] . '();';
+                if ('public' == $this->getOption('access')) {
+                    foreach ($operation['parameters'] as $name => $type) {
+                        $lines[] = $this->spaces . $this->spaces . '$parameters->' . $name . ' = $' . $name . ';';
+                    }
+                } else {
+                    foreach ($operation['parameters'] as $name => $type) {
+                        $lines[] = $this->spaces . $this->spaces . '$parameters->set' . ucfirst($name) . '($' . $name . ');';
+                    }
+                }
             }
         } else {
-            $lines[] = $this->spaces . $this->spaces . '$arguments = func_get_args();';
+            $lines[] = $this->spaces . $this->spaces . '$parameters = func_get_args();';
         }
         $lines[] = '';
-        $lines[] = $this->spaces . $this->spaces . 'return $this->__soapCall(\'' . $operation['name'] . '\', $arguments);';
+        $lines[] = $this->spaces . $this->spaces . 'return $this->__soapCall(\'' .
+            $operation['name'] . '\', array(\'parameters\' => $parameters));';
         $lines[] = $this->spaces . '}';
 
         return implode("\n", $lines);
-    }
-
-    /**
-     * Generate function arguments.
-     *
-     * @param array(string=>string) $operation Operationinformation
-     *
-     * @return string
-     */
-    protected function generateFunctionArguments($operation)
-    {
-        $parameters = array();
-
-        foreach ($operation['parameters'] as $name => $type) {
-            if (!in_array($type, self::$phpTypes)) {
-                $parameters[] = $type . ' $' . $name;
-            } else {
-                $parameters[] = '$' . $name;
-            }
-        }
-
-        return implode(', ', $parameters);
     }
 }

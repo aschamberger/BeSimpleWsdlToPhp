@@ -125,6 +125,17 @@ class XmlSchemaMapper
     {
         $xmlSchemaType = substr($xmlSchemaType, strlen($prefix)+1);
 
-        return self::$xmlSchemaToPhpType[$xmlSchemaType];
+        return isset(self::$xmlSchemaToPhpType[$xmlSchemaType])?
+            self::$xmlSchemaToPhpType[$xmlSchemaType]:
+            $xmlSchemaType;
     }
+
+    /**
+     * @return array
+     */
+    public static function getAllTypes()
+    {
+        return self::$xmlSchemaToPhpType;
+    }
+
 }

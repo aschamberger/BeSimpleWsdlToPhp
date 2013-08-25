@@ -29,7 +29,7 @@ class ClientGeneratorTest extends \PHPUnit_Framework_TestCase
     {
         $generator = new ClientGenerator();
         $targetDir = sys_get_temp_dir();
-        $targetDir = dirname(__DIR__).DIRECTORY_SEPARATOR.'Fixtures';
+//        $targetDir = dirname(__DIR__).DIRECTORY_SEPARATOR.'Fixtures';
 
         $target = $generator->writeClass($this->testData, $targetDir);
         $file = dirname(__DIR__).DIRECTORY_SEPARATOR.'Fixtures/My/Webservices/Client.php';
