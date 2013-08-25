@@ -172,7 +172,7 @@ class WsdlParser
     protected function parseWsdlOperations()
     {
         $queries = array(
-//            '/wsdl:definitions/wsdl:binding/soap:binding[@style="document"]/../wsdl:operation/wsdl:input/soap:body[@use="literal"]/../..',
+            '/wsdl:definitions/wsdl:binding/soap:binding[@style="document"]/../wsdl:operation/wsdl:input/soap:body[@use="literal"]/../..',
             '/wsdl:definitions/wsdl:portType/wsdl:operation'
         );
 
@@ -209,11 +209,11 @@ class WsdlParser
         $outputMessage = $operation->getElementsByTagName('output')->item(0)->getAttribute('message');
 
         list($prefix, $inputType) = $this->getTypeName($this->resolveMessageType($inputMessage));
-        $tns = '';//$this->domDocument->lookupNamespaceURI($prefix).'/';
+        $tns = '';//$this->domDocument->lookupNamespaceURI($prefix).'/'; // TODO Resolve namespaces
         $inputTypeNS = $tns.$inputType;
 
         list($prefix, $outputType) = $this->getTypeName($this->resolveMessageType($outputMessage));
-        $tns = '';//$this->domDocument->lookupNamespaceURI($prefix).'/';
+        $tns = '';//$this->domDocument->lookupNamespaceURI($prefix).'/'; // TODO Resolve namespaces
         $outputTypeNS = $tns.$outputType;
 
         $this->getWsdlTypes();
@@ -560,7 +560,7 @@ class WsdlParser
      */
     private function convertXmlNsToPhpNs($ns)
     {
-        return '';
+        return ''; // TODO Resolve namespaces
         $ns = rtrim($ns, '/');
         $nsArr = explode('/', $ns);
         $namespace = array_pop($nsArr);
@@ -657,8 +657,6 @@ class WsdlParser
         if ($elements->length > 0) {
             $wsdlType['properties'] = array();
             foreach ($elements as $element) {
-
-//                var_dump($element);
                 $property = $this->makeProperty($element->getAttribute('name'), $element, 'type', $xmlSchemaPrefix);
 
                 if ($element->hasAttribute('maxOccurs') &&
