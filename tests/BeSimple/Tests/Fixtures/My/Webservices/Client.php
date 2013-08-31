@@ -2,7 +2,7 @@
 
 namespace My\Webservices;
 
-use BeSimple\SoapClient\SoapClient as BeSimpleSoapClient;
+use \SoapClient as BaseSoapClient;
 
 /**
  * This class is generated from the following WSDL:
@@ -12,8 +12,31 @@ use BeSimple\SoapClient\SoapClient as BeSimpleSoapClient;
  * eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam
  * voluptua. At vero eos et accusam et
  */
-class Client extends BeSimpleSoapClient
+class Client extends BaseSoapClient
 {
+    protected $classMap = array(
+    );
+
+    /**
+     * Constructor.
+     *
+     * @param string               $wsdl    WSDL file
+     * @param array(string=>mixed) $options Options array
+     */
+    public function __construct($wsdl, array $options = array())
+    {
+        if (!isset($options['classmap'])) {
+            $options['classmap'] = $this->getClassMap();
+        }
+
+        return parent::__construct($wsdl, $options);
+    }
+
+    public function getClassMap()
+    {
+        return $this->classMap;
+    }
+
     /**
      * getVersion
      *
@@ -25,9 +48,9 @@ class Client extends BeSimpleSoapClient
      */
     public function getVersion()
     {
-        $arguments = func_get_args();
+        $parameters = func_get_args();
 
-        return $this->__soapCall('getVersion', $arguments);
+        return $this->__soapCall('getVersion', array('parameters' => $parameters));
     }
 
     /**
@@ -45,12 +68,12 @@ class Client extends BeSimpleSoapClient
      */
     public function getCustomer($name, $firstname, $country)
     {
-        $arguments = new My\Webservices\Customer();
-        $arguments->name = $name;
-        $arguments->firstname = $firstname;
-        $arguments->country = $country;
+        $parameters = new My\Webservices\Customer();
+        $parameters->name = $name;
+        $parameters->firstname = $firstname;
+        $parameters->country = $country;
 
-        return $this->__soapCall('getCustomer', $arguments);
+        return $this->__soapCall('getCustomer', array('parameters' => $parameters));
     }
 
     /**
@@ -66,9 +89,9 @@ class Client extends BeSimpleSoapClient
      */
     public function getProductName($id)
     {
-        $arguments = func_get_args();
+        $parameters = func_get_args();
 
-        return $this->__soapCall('getProductName', $arguments);
+        return $this->__soapCall('getProductName', array('parameters' => $parameters));
     }
 
     /**
@@ -84,8 +107,8 @@ class Client extends BeSimpleSoapClient
      */
     public function getCarByCustomer(My\Webservices\Customer $client)
     {
-        $arguments = func_get_args();
+        $parameters = func_get_args();
 
-        return $this->__soapCall('getCarByCustomer', $arguments);
+        return $this->__soapCall('getCarByCustomer', array('parameters' => $parameters));
     }
 }

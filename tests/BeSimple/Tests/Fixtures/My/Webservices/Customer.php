@@ -20,7 +20,7 @@ class Customer
      *
      * @var string
      */
-    public $name;
+    protected $name;
 
     /**
      * firstname
@@ -30,7 +30,7 @@ class Customer
      *
      * @var string
      */
-    public $firstname;
+    protected $firstname;
 
     /**
      * country
@@ -40,5 +40,76 @@ class Customer
      *
      * @var string
      */
-    public $country;
+    protected $country;
+
+    /**
+     * Constructor.
+     *
+     * @param string $name
+     * @param string $firstname
+     * @param string $country
+     */
+    public function __construct($name, $firstname, $country)
+    {
+        $this->name = $name;
+        $this->firstname = $firstname;
+        $this->country = $country;
+    }
+
+    /**
+     * @param string $name
+     *
+     * @return Customer
+     */
+    public function setName($name)
+    {
+        $this->name = $name;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getName()
+    {
+        return $this->name;
+    }
+
+    /**
+     * @param string $firstname
+     *
+     * @return Customer
+     */
+    public function setFirstname($firstname)
+    {
+        $this->firstname = $firstname;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getFirstname()
+    {
+        return $this->firstname;
+    }
+
+    /**
+     * @param string $country
+     *
+     * @return Customer
+     */
+    public function setCountry($country)
+    {
+        $this->country = $country;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getCountry()
+    {
+        return $this->country;
+    }
 }

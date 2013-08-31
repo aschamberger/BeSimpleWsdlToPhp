@@ -4,7 +4,6 @@
     "description": "BeSimple WSDL 2 PHP library",
     "keywords": [ "soap", "wsdl", "wsdl2php" ],
     "homepage": "http://besim.pl",
-    "license": "MIT",
     "authors": [
         {
             "name": "Francis Besset",

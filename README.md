@@ -28,6 +28,4 @@ php /usr/local/bin/composer.phar install
 
 # Run
 
-```sh
 wsdl2php -w myservice.wsdl
-```
