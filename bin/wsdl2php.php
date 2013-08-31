@@ -32,6 +32,12 @@ $opts = array(
         'default' => false,
         'doc' => 'Name of client class, if it is empty client will not be generated.',
     ),
+    'parent' => array(
+        'shortKey' => null,
+        'access' => 'optional',
+        'default' => false,
+        'doc' => 'Parent of Client class. Default value: \\SoapClient',
+    ),
     'namespace' => array(
         'shortKey' => 'n',
         'access' => 'optional',
@@ -185,6 +191,7 @@ if (false !== $options['client']) {
     $data = array(
         'wsdl' => $options['wsdl'],
         'namespace' => $options['namespace'],
+        'parent' => $options['parent'],
         'name' => $options['client'],
         'operations' => $p->getWsdlOperations(),
         'types' => $classmapTypes,
