@@ -91,17 +91,16 @@ class WsdlParser
     /**
      * Add WSDL parsing error.
      *
-     * @param \Exception $parent   previous exception, point to code position
-     * @param string     $message  Error message
-     * @param int        $line     Error line
-     * @param string     $wsdlFile WSDL file name
+     * @param string $message  Error message
+     * @param int    $line     Error line number
+     * @param string $wsdlFile WSDL file name
      */
-    public function addError($parent, $message, $line = null, $wsdlFile = null)
+    public function addError($message, $line = null, $wsdlFile = null)
     {
         if (null === $wsdlFile) {
             $wsdlFile = $this->wsdlFile;
         }
-        $this->errors[] = new WsdlException($parent, $message, $wsdlFile, $line);
+        $this->errors[] = new WsdlParserError($message, $wsdlFile, $line);
     }
 
     /**
@@ -378,7 +377,6 @@ class WsdlParser
             foreach ($wsdlType['properties'] as $property) {
                 if (!empty($property['phpType']) && $wsdlType['name'] == $property['phpType']) {
                     $this->addError(
-                        new Exception(),
                         "Type '{$wsdlType['name']}' have property '{$property['name']}' point to himself",
                         $type->getLineNo()
                     );
@@ -539,7 +537,6 @@ class WsdlParser
 
                     if (1 < $types->length) {
                         $this->addError(
-                            new Exception(),
                             "Element have more then one child #2",
                             $types->item(0)->parentNode->getLineNo()
                         );
@@ -561,7 +558,6 @@ class WsdlParser
                 if (!empty($wsdlType)) {
                     if (!empty($wsdlTypes[$targetNamespace . $attrName])) {
                         $this->addError(
-                            new Exception(),
                             "Type: '{$targetNamespace}{$attrName}' in file '{$wsdlType['wsdl']}' already exist",
                             0,
                             $wsdlTypes[$targetNamespace . $attrName]['wsdl']

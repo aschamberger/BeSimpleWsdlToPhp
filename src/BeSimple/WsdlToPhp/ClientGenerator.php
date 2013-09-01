@@ -159,7 +159,7 @@ class ClientGenerator extends AbstractClassGenerator
         if (isset($operation['wrapParameters'])) {
 
             if ($this->getOption('generate_constructor')) {
-                throw new Exception('It does not implemented yet');
+                throw new \RuntimeException('Not implemented yet');
             } else {
                 $lines[] = $this->spaces . $this->spaces . '$parameters = new ' . $operation['wrapParameters'] . '();';
                 if ('public' == $this->getOption('access')) {
