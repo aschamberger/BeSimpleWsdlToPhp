@@ -158,11 +158,11 @@ if (empty($options['wsdl'])) {
 }
 
 echo "Starts\n";
-$p = new WsdlParser($options['wsdl'], $options['soap_version']);
-$wsdlTypes = $p->getWsdlTypes();
-if ($p->hasErrors()) {
+$parser = new WsdlParser($options['wsdl'], $options['soap_version']);
+$wsdlTypes = $parser->getWsdlTypes();
+if ($parser->hasErrors()) {
     echo "Errors:\n";
-    foreach ($p->getErrors() as $error) {
+    foreach ($parser->getErrors() as $error) {
         echo $error->toString(), "\n";
     }
 }
@@ -186,12 +186,12 @@ if (!empty($wsdlTypes)) {
 if (false !== $options['client']) {
     $generator = new ClientGenerator($options, $wsdlTypes);
     $data = array(
-        'wsdl' => $options['wsdl'],
-        'namespace' => $options['namespace'],
-        'parent' => $options['parent'],
-        'name' => $options['client'],
-        'operations' => $p->getWsdlOperations(),
-        'types' => $classmapTypes,
+        'wsdl'       => $options['wsdl'],
+        'namespace'  => $options['namespace'],
+        'parent'     => $options['parent'],
+        'name'       => $options['client'],
+        'operations' => $parser->getWsdlOperations(),
+        'types'      => $classmapTypes,
     );
     $file = $generator->writeClass($data, $options['output_dir']);
     echo 'written file ' . $file . PHP_EOL;
