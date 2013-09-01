@@ -1,6 +1,11 @@
 # BeSimpleWsdlToPhp
 
-wsdl2php - takes a WSDL document and generates PHP code from which to implement a service.
+wsdl2php - takes a WSDL document and generates PHP code from which to implement
+a service. The WSDL document must have a valid portType element, but it does not
+need to contain a binding element or a service element. It is always assumed the
+given [doc-lit WSDLs "unwrap" nicely](http://pzf.fremantle.org/2007/05/handlign.html)
+
+Using the optional arguments you can customize the generated code.
 
 # Installation
 

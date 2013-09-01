@@ -185,23 +185,12 @@ class WsdlParser
      */
     protected function parseWsdlOperations()
     {
-        // TODO fix port type handling....
-        $queries = array(
-//            '/wsdl:definitions/wsdl:binding/soap:binding[@style="document"]/../wsdl:operation/wsdl:input/soap:body[@use="literal"]/../..',
-            '/wsdl:definitions/wsdl:portType/wsdl:operation'
-        );
+        $query = '/wsdl:definitions/wsdl:portType/wsdl:operation';
+        $operations = $this->domXpath->query($query);
 
-        foreach ($queries as $query) {
-
-            $operations = $this->domXpath->query($query);
-
-            $wsdlOperations = array();
-            foreach ($operations as $operation) {
-                $portType = $operation->parentNode->getAttribute('type');
-                $wsdlOperations = array_merge($wsdlOperations, $this->resolveOperation($operation, $portType));
-            }
-
-            $this->wsdlOperations = array_merge($this->wsdlOperations, $wsdlOperations);
+        foreach ($operations as $operation) {
+            $portType = $operation->parentNode->getAttribute('type');
+            $this->wsdlOperations[] = $this->resolveOperation($operation, $portType);
         }
     }
 
@@ -219,7 +208,6 @@ class WsdlParser
         list($prefix, $name) = $this->getTypeName($portType);
         $ns = $this->domDocument->lookupNamespaceURI($prefix);
 
-        $wsdlOperations = array();
         $inputMessage = $operation->getElementsByTagName('input')->item(0)->getAttribute('message');
         $outputMessage = $operation->getElementsByTagName('output')->item(0)->getAttribute('message');
 
@@ -239,7 +227,7 @@ class WsdlParser
 
         $parameters = $this->getOperationParameters($this->wsdlTypes, $inputTypeWsdl['name']);
 
-        $wsdlOperations[] = array(
+        return array(
             'name' => $operationName,
             'parameters' => $parameters,
             'wrapParameters' =>  (empty($inputTypeWsdl['namespace']) ?
@@ -247,8 +235,6 @@ class WsdlParser
             'return' => (empty($outputTypeWsdl['namespace']) ?
                 '' : $outputTypeWsdl['namespace'] . '\\') . $outputTypeWsdl['name'],
         );
-
-        return $wsdlOperations;
     }
 
     /**
