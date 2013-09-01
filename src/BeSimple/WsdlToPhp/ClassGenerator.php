@@ -122,6 +122,14 @@ class ClassGenerator extends AbstractClassGenerator
         return implode("\n", $lines);
     }
 
+    /**
+     * Get properties.
+     *
+     * @param array   $properties List of properties
+     * @param boolean $isRequired Required property
+     *
+     * @return array
+     */
     protected function getProperties($properties, $isRequired)
     {
         foreach ($properties as $key => $val) {
@@ -200,7 +208,9 @@ class ClassGenerator extends AbstractClassGenerator
      */
     protected function generateProperty($property)
     {
-        if (empty($property['name'])) return '';
+        if (empty($property['name'])) {
+            return '';
+        }
 
         $lines = array();
         $lines[] = $this->spaces . '/**';

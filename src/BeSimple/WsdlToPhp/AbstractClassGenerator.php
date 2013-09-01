@@ -130,11 +130,14 @@ abstract class AbstractClassGenerator
     /**
      * Constructor.
      *
-     * @param array $options keys:
-     *  extension - PHP file extension
-     *  indent - Number of spaces to indent
-     *  overwrite - Overwrite existing target file
-     *  backup - Backup existing target file
+     * Options:
+     * - extension: PHP file extension
+     * - indent:    Number of spaces to indent
+     * - overwrite: Overwrite existing target file
+     * - backup:    Backup existing target file
+     *
+     * @param array $options   Options
+     * @param array $wsdlTypes WSDL types
      */
     public function __construct(array $options = array(), $wsdlTypes = array())
     {
@@ -150,7 +153,9 @@ abstract class AbstractClassGenerator
     }
 
     /**
-     * @param string $name
+     * Get option value.
+     *
+     * @param string $name Name of option
      *
      * @return mixed
      */
@@ -284,9 +289,8 @@ abstract class AbstractClassGenerator
     /**
      * Generate function arguments.
      *
-     * @param array(string=>string) $args
-     * @param bool                  $isRequired
-     * @param array                 $data
+     * @param array(string=>string) $args       List of arguments
+     * @param bool                  $isRequired Required argument
      *
      * @return string
      */

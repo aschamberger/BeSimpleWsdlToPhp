@@ -131,6 +131,8 @@ class XmlSchemaMapper
     }
 
     /**
+     * Get all XML schema types.
+     *
      * @return array
      */
     public static function getAllTypes()

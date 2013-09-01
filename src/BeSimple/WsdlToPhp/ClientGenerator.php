@@ -96,8 +96,10 @@ class ClientGenerator extends AbstractClassGenerator
     {
         $lines = array();
         $lines[] = $this->spaces . 'protected $classMap = array(';
-        if (!empty($data['types'])) foreach ($data['types'] as $name => $type) {
-            $lines[] = str_repeat($this->spaces, 2) . "'" . $name . "' => '" . $type . "',";
+        if (!empty($data['types'])) {
+            foreach ($data['types'] as $name => $type) {
+                $lines[] = str_repeat($this->spaces, 2) . "'" . $name . "' => '" . $type . "',";
+            }
         }
         $lines[] = $this->spaces . ');';
         $lines[] = '';
