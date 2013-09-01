@@ -15,7 +15,7 @@ Create a `composer.json` file:
 ```json
 {
     "require": {
-        "besimple/soap-common": "dev-master"
+        "besimple/wsdl2php": "dev-master"
     }
 }
 ```

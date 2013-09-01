@@ -15,9 +15,7 @@ use BeSimple\WsdlToPhp\WsdlParser;
 use BeSimple\WsdlToPhp\ClassGenerator;
 use BeSimple\WsdlToPhp\ClientGenerator;
 
-error_reporting(E_ALL | E_STRICT);
-
-include getcwd() .'/vendor/autoload.php';
+include __DIR__ . '/../vendor/autoload.php';
 
 $opts = array(
     'wsdl' => array(

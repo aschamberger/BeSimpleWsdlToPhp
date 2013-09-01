@@ -11,18 +11,25 @@
  * with this source code in the file LICENSE.
  */
 
-namespace BeSimple\Tests\WsdlToPhp;
+namespace BeSimple\WsdlToPhp\Tests;
 
 use BeSimple\WsdlToPhp\WsdlParser;
 
 class WsdlParserTest extends \PHPUnit_Framework_TestCase
 {
+    protected $fixturesDir;
+
+    protected function setUp()
+    {
+        $this->fixturesDir = __DIR__ . "/Fixtures";
+    }
+
     /**
      * @test
      */
     public function getWsdlTypesSimpleAndIncludes()
     {
-        $wsdlPath = __DIR__ . '/../Fixtures/wsdl/includes.wsdl';
+        $wsdlPath = $this->fixturesDir.'/wsdl/includes.wsdl';
         $parser = new WsdlParser($wsdlPath, SOAP_1_2);
 
         $this->assertEquals(
@@ -74,7 +81,7 @@ class WsdlParserTest extends \PHPUnit_Framework_TestCase
      */
     public function getWsdlTypesComplex()
     {
-        $wsdlPath = __DIR__ . '/../Fixtures/wsdl/complex_types.wsdl';
+        $wsdlPath = $this->fixturesDir.'/wsdl/complex_types.wsdl';
         $parser = new WsdlParser($wsdlPath, SOAP_1_2);
 
         $this->assertEquals(
@@ -111,7 +118,7 @@ class WsdlParserTest extends \PHPUnit_Framework_TestCase
      */
     public function getWsdlTypesCascade()
     {
-        $wsdlPath = __DIR__ . '/../Fixtures/wsdl/cascade.wsdl';
+        $wsdlPath = $this->fixturesDir.'/wsdl/cascade.wsdl';
         $parser = new WsdlParser($wsdlPath, SOAP_1_2);
 
         $this->assertEquals(
@@ -141,7 +148,7 @@ class WsdlParserTest extends \PHPUnit_Framework_TestCase
      */
     public function getWsdlTypesRestrictions()
     {
-        $wsdlPath = __DIR__ . '/../Fixtures/wsdl/restrictions.wsdl';
+        $wsdlPath = $this->fixturesDir.'/wsdl/restrictions.wsdl';
         $parser = new WsdlParser($wsdlPath, SOAP_1_2);
 
         $this->assertEquals(
@@ -189,7 +196,7 @@ class WsdlParserTest extends \PHPUnit_Framework_TestCase
      */
     public function getWsdlTypesResolveElements()
     {
-        $wsdlPath = __DIR__ . '/../Fixtures/wsdl/elements.wsdl';
+        $wsdlPath = $this->fixturesDir.'/wsdl/elements.wsdl';
         $parser = new WsdlParser($wsdlPath, SOAP_1_2);
         $parser->getWsdlTypes();
         $this->assertFalse($parser->hasErrors()/*, $parser->getErrors()[0]*/);
@@ -200,7 +207,7 @@ class WsdlParserTest extends \PHPUnit_Framework_TestCase
      */
     public function parseWsdlOperations()
     {
-        $wsdlPath = __DIR__ . '/../Fixtures/wsdl/operations.wsdl';
+        $wsdlPath = $this->fixturesDir.'/wsdl/operations.wsdl';
         $parser = new WsdlParser($wsdlPath, SOAP_1_2);
 
         $this->assertEquals(

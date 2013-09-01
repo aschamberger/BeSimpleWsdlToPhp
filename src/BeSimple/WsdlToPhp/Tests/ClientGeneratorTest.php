@@ -11,17 +11,19 @@
  * with this source code in the file LICENSE.
  */
 
-namespace BeSimple\Tests\WsdlToPhp;
+namespace BeSimple\WsdlToPhp\Tests;
 
 use BeSimple\WsdlToPhp\ClientGenerator;
 
 class ClientGeneratorTest extends \PHPUnit_Framework_TestCase
 {
+    protected $fixturesDir;
     protected $testData;
 
     protected function setUp()
     {
-        $filename = dirname(__DIR__).DIRECTORY_SEPARATOR.'Fixtures/ClientGeneratorTestData.php';
+        $this->fixturesDir = __DIR__ . "/Fixtures";
+        $filename = $this->fixturesDir.'/ClientGeneratorTestData.php';
         $this->testData = require $filename;
     }
 
@@ -29,11 +31,9 @@ class ClientGeneratorTest extends \PHPUnit_Framework_TestCase
     {
         $generator = new ClientGenerator();
         $targetDir = sys_get_temp_dir();
-//        $targetDir = dirname(__DIR__).DIRECTORY_SEPARATOR.'Fixtures';
 
         $target = $generator->writeClass($this->testData, $targetDir);
-        $file = dirname(__DIR__).DIRECTORY_SEPARATOR.'Fixtures/My/Webservices/Client.php';
+        $file = $this->fixturesDir.'/My/Webservices/Client.php';
         $this->assertFileEquals($file, $target);
-//         unset($file);
     }
 }
