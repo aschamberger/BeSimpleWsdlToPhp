@@ -124,7 +124,6 @@ class ClientGenerator extends AbstractClassGenerator
         return implode("\n", $lines);
     }
 
-
     /**
      * Generate operation.
      *

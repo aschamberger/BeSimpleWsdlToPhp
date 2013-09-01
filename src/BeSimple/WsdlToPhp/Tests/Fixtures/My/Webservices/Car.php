@@ -63,7 +63,7 @@ class Car
      *
      * @param string $model
      * @param string $color
-     * @param Brand $brand
+     * @param Brand  $brand
      */
     public function __construct($model, $color, Brand $brand = null)
     {
@@ -80,6 +80,7 @@ class Car
     public function setBrand(Brand $brand)
     {
         $this->brand = $brand;
+
         return $this;
     }
 
@@ -91,6 +92,7 @@ class Car
         if (null === $this->brand) {
             $this->brand = new Brand();
         }
+
         return $this->brand;
     }
 
@@ -102,6 +104,7 @@ class Car
     public function setModel($model)
     {
         $this->model = $model;
+
         return $this;
     }
 
@@ -121,6 +124,7 @@ class Car
     public function setColor($color)
     {
         $this->color = $color;
+
         return $this;
     }
 

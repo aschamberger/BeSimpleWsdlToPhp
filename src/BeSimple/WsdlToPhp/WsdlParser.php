@@ -89,10 +89,10 @@ class WsdlParser
     }
 
     /**
-     * @param \Exception $parent - previous exception, point to code position
-     * @param string $message
-     * @param string $wsdlFile
-     * @param int $line
+     * @param \Exception $parent   - previous exception, point to code position
+     * @param string     $message
+     * @param string     $wsdlFile
+     * @param int        $line
      */
     public function addError($parent, $message, $line = null, $wsdlFile = null)
     {
@@ -101,7 +101,6 @@ class WsdlParser
         }
         $this->errors[] = new WsdlException($parent, $message, $wsdlFile, $line);
     }
-
 
     /**
      * @return bool
@@ -120,7 +119,7 @@ class WsdlParser
     }
 
     /**
-     * @param string $wsdlFile
+     * @param  string $wsdlFile
      * @return bool
      */
     protected function loadXml($wsdlFile)
@@ -134,6 +133,7 @@ class WsdlParser
         $this->domDocument = new \DOMDocument('1.0', 'utf-8');
         $this->domDocument->load($this->wsdlFile = $wsdlFile);
         $this->initXpathDom();
+
         return true;
     }
 
@@ -154,6 +154,7 @@ class WsdlParser
         if (empty($this->wsdlOperations)) {
             $this->parseWsdlOperations();
         }
+
         return $this->wsdlOperations;
     }
 
@@ -194,7 +195,7 @@ class WsdlParser
      * Resolve operation.
      *
      * @param \DOMElement $operation Soap operation
-     * @param string $portType      Port type
+     * @param string      $portType  Port type
      *
      * @return array()
      */
@@ -251,6 +252,7 @@ class WsdlParser
             $inputTypeNS = $inputTypeWsdl['parentXml'];
             $parameters = array_merge($parameters, $this->getOperationParameters($wsdlTypes, $inputTypeNS));
         }
+
         return $parameters;
     }
 
@@ -272,10 +274,10 @@ class WsdlParser
     }
 
     /**
-     * @param string $name
+     * @param string      $name
      * @param \DOMElement $element
-     * @param string $attributeName
-     * @param string $xmlSchemaPrefix
+     * @param string      $attributeName
+     * @param string      $xmlSchemaPrefix
      *
      * @return array
      */
@@ -289,15 +291,15 @@ class WsdlParser
             ),
             'wsdlType' => $element->getAttribute($attributeName),
             'restrictions' => array(),
-            'isNull' => (bool)$element->getAttribute('nillable'),
+            'isNull' => (bool) $element->getAttribute('nillable'),
         );
     }
 
     /**
      * @param \DOMElement $type
      * @param \DOMElement $schema
-     * @param string $xmlSchemaPrefix
-     * @param string $namespace
+     * @param string      $xmlSchemaPrefix
+     * @param string      $namespace
      *
      * @return array
      */
@@ -379,6 +381,7 @@ class WsdlParser
         } else {
             $name = $names[0];
         }
+
         return array(
             $prefix,
             $name,
@@ -409,6 +412,7 @@ class WsdlParser
             $this->wsdlFile = $oldWsdlFile;
             $this->initXpathDom();
         }
+
         return $wsdlTypes;
     }
 
@@ -421,6 +425,7 @@ class WsdlParser
     {
         if (func_num_args() < 2) {
             trigger_error(__FUNCTION__ . ' needs two or more array arguments', E_USER_WARNING);
+
             return null;
         }
         $arrays = func_get_args();
@@ -429,6 +434,7 @@ class WsdlParser
             $array = array_shift($arrays);
             if (!is_array($array)) {
                 trigger_error(__FUNCTION__ . ' encountered a non array argument', E_USER_WARNING);
+
                 return null;
             }
             if (!$array) continue;
@@ -444,6 +450,7 @@ class WsdlParser
                 }
             }
         }
+
         return $merged;
     }
 
@@ -537,6 +544,7 @@ class WsdlParser
                 }
             }
         }
+
         return $wsdlTypes;
     }
 
@@ -548,6 +556,7 @@ class WsdlParser
         if (empty($this->wsdlTypes)) {
             $this->wsdlTypes = $this->parseWsdlTypes();
         }
+
         return $this->wsdlTypes;
     }
 
@@ -583,6 +592,7 @@ class WsdlParser
         }
         $ns = $this->domDocument->lookupNamespaceURI($prefix);
         $namespace = $this->convertXmlNsToPhpNs($ns);
+
         return ($namespace? $namespace . '\\' : '') . $type;
     }
 
@@ -647,8 +657,8 @@ class WsdlParser
 
     /**
      * @param \DOMElement $type
-     * @param array $wsdlType
-     * @param string $xmlSchemaPrefix
+     * @param array       $wsdlType
+     * @param string      $xmlSchemaPrefix
      */
     private function resolveElements($type, &$wsdlType, $xmlSchemaPrefix)
     {

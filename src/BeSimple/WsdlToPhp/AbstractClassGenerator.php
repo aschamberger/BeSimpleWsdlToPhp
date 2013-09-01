@@ -94,7 +94,6 @@ abstract class AbstractClassGenerator
         'unset',
     );
 
-
     protected static $phpTypes = array(
         'boolean',
         'bool',
@@ -215,7 +214,6 @@ abstract class AbstractClassGenerator
     protected function generateNamespace($data)
     {
         if (!empty($data['namespace'])) {
-
             return 'namespace ' . $data['namespace'] . ";\n";
         }
 
@@ -287,8 +285,8 @@ abstract class AbstractClassGenerator
      * Generate function arguments.
      *
      * @param array(string=>string) $args
-     * @param bool $isRequired
-     * @param array $data
+     * @param bool                  $isRequired
+     * @param array                 $data
      *
      * @return string
      */

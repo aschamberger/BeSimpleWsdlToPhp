@@ -6,8 +6,8 @@ class WsdlException extends Exception
 {
     /**
      * @param string $message
-     * @param int $wsdlFile
-     * @param int $line
+     * @param int    $wsdlFile
+     * @param int    $line
      */
     public function __construct($parent, $message, $wsdlFile, $line)
     {
