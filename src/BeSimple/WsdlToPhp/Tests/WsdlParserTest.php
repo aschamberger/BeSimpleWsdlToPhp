@@ -192,7 +192,7 @@ class WsdlParserTest extends \PHPUnit_Framework_TestCase
     /**
      * @test
      *
-     * Fix: parse elements as Type and as Property and creates few Types
+     * TODO: parse elements as Type and as Property and creates few Types
      */
     public function getWsdlTypesResolveElements()
     {

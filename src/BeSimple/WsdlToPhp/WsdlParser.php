@@ -406,7 +406,6 @@ class WsdlParser
      */
     protected function parseImports(\DOMElement $schema)
     {
-        // TODO inline schema definitions!!!
         $wsdlTypes = array();
         $imports = $schema->getElementsByTagNameNS(Helper::NS_XML_SCHEMA, 'import');
 
@@ -416,7 +415,7 @@ class WsdlParser
             /** @var \DOMElement $import */
             foreach ($imports as $import) {
                 $location = $import->getAttribute('schemaLocation');
-                if ($this->loadXml($location)) {
+                if ("" != $location && $this->loadXml($location)) {
                     $wsdlTypes = array_merge($wsdlTypes, $this->parseWsdlTypes('/xsd:schema'));
                 }
             }
