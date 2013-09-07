@@ -34,9 +34,9 @@ class WsdlParserTest extends \PHPUnit_Framework_TestCase
 
         $this->assertEquals(
             array(
-                'ACHAccountType' => array(
+                'http://schemas.datacontract.org/2004/07/Transmodus.Wrapper/ACHAccountType' => array(
                     'wsdl' => 'https://heartlandpaymentservices.net/BillingDataManagement/v3/BillingDataManagementService.svc?xsd=xsd3',
-                    'namespace' => '',
+                    'namespace' => 'org\\datacontract\\schemas\\2004\\07\\Transmodus_Wrapper',
                     'name' => 'ACHAccountType',
                     'properties' => array(
                         array(
@@ -52,9 +52,9 @@ class WsdlParserTest extends \PHPUnit_Framework_TestCase
                         )
                     )
                 ),
-                'ACHDepositType' => array(
+                'http://schemas.datacontract.org/2004/07/Transmodus.Wrapper/ACHDepositType' => array(
                     'wsdl' => 'https://heartlandpaymentservices.net/BillingDataManagement/v3/BillingDataManagementService.svc?xsd=xsd3',
-                    'namespace' => '',
+                    'namespace' => 'org\\datacontract\\schemas\\2004\\07\\Transmodus_Wrapper',
                     'name' => 'ACHDepositType',
                     'properties' => array(
                         array(
@@ -86,9 +86,9 @@ class WsdlParserTest extends \PHPUnit_Framework_TestCase
 
         $this->assertEquals(
             array(
-                'Credentials' => array(
+                'http://schemas.datacontract.org/2004/07/BDMS.NewModel/Credentials' => array(
                     'wsdl' => $wsdlPath,
-                    'namespace' => '',
+                    'namespace' => 'org\datacontract\schemas\2004\07\BDMS_NewModel',
                     'name' => 'Credentials',
                     'properties' => array(
                         array(
@@ -123,9 +123,9 @@ class WsdlParserTest extends \PHPUnit_Framework_TestCase
 
         $this->assertEquals(
             array(
-                'AddBlindPayment' => array(
+                'https://test.heartlandpaymentservices.net/BillingDataManagement/v3/BillingDataManagementService/AddBlindPayment' => array(
                     'wsdl' => $wsdlPath,
-                    'namespace' => '',
+                    'namespace' => 'net\heartlandpaymentservices\test\BillingDataManagement\v3\BillingDataManagementService',
                     'name' => 'AddBlindPayment',
                     'properties' => array(
                         array(
@@ -153,9 +153,9 @@ class WsdlParserTest extends \PHPUnit_Framework_TestCase
 
         $this->assertEquals(
             array(
-                'char' => array(
+                'http://schemas.microsoft.com/2003/10/Serialization/char' => array(
                     'wsdl' => $wsdlPath,
-                    'namespace' => '',
+                    'namespace' => 'com\microsoft\schemas\2003\10\Serialization',
                     'name' => 'char',
                     'properties' => array(
                         array(
@@ -167,9 +167,9 @@ class WsdlParserTest extends \PHPUnit_Framework_TestCase
                         ),
                     ),
                 ),
-                'guid' => array(
+                'http://schemas.microsoft.com/2003/10/Serialization/guid' => array(
                     'wsdl' => $wsdlPath,
-                    'namespace' => '',
+                    'namespace' => 'com\microsoft\schemas\2003\10\Serialization',
                     'name' => 'guid',
                     'properties' => array(
                         array (
@@ -191,15 +191,47 @@ class WsdlParserTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @test
-     *
-     * TODO: parse elements as Type and as Property and creates few Types
      */
     public function getWsdlTypesResolveElements()
     {
         $wsdlPath = $this->fixturesDir.'/wsdl/elements.wsdl';
         $parser = new WsdlParser($wsdlPath, SOAP_1_2);
-        $parser->getWsdlTypes();
-        $this->assertFalse($parser->hasErrors()/*, $parser->getErrors()[0]*/);
+
+        $this->assertEquals(
+            array(
+                'http://schemas.datacontract.org/2004/07/BDMS.NewModel/Transaction' => array(
+                    'wsdl' => $wsdlPath,
+                    'namespace' => 'org\datacontract\schemas\2004\07\BDMS_NewModel',
+                    'name' => 'Transaction',
+                    'properties' => array(
+                        array(
+                            'name' => 'Amount',
+                            'phpType' => 'float',
+                            'wsdlType' => 'xs:decimal',
+                            'restrictions' => array(),
+                            'isNull' => false,
+                        ),
+                    ),
+                ),
+                'http://schemas.datacontract.org/2004/07/BDMS.NewModel/MakePaymentRequest' => array(
+                    'wsdl' => $wsdlPath,
+                    'namespace' => 'org\datacontract\schemas\2004\07\BDMS_NewModel',
+                    'name' => 'MakePaymentRequest',
+                    'parent' => 'org\datacontract\schemas\2004\07\BDMS_NewModel\MerchantRequest',
+                    'properties' => array(
+                        array(
+                            'name' => 'Transaction',
+                            'phpType' => 'org\datacontract\schemas\2004\07\BDMS_NewModel\Transaction',
+                            'wsdlType' => 'tns:Transaction',
+                            'restrictions' => array(),
+                            'isNull' => true,
+                        ),
+                    ),
+                ),
+            ),
+            $parser->getWsdlTypes()
+        );
+        $this->assertFalse($parser->hasErrors());
     }
 
     /**
@@ -217,16 +249,16 @@ class WsdlParserTest extends \PHPUnit_Framework_TestCase
                     'parameters' => array(
                         'AddBlindPaymentRequest' => 'AddBlindPaymentRequest',
                     ),
-                    'wrapParameters' => 'AddBlindPayment',
-                    'return' => 'AddBlindPaymentResponse',
+                    'wrapParameters' => 'net\heartlandpaymentservices\test\BillingDataManagement\v3\BillingDataManagementService\AddBlindPayment',
+                    'return' => 'net\heartlandpaymentservices\test\BillingDataManagement\v3\BillingDataManagementService\AddBlindPaymentResponse',
                 ),
                 array(
                     'name' => 'DisburseFunds',
                     'parameters' => array(
                         'DisburseFundsRequest' => 'DisburseFundsRequest'
                     ),
-                    'wrapParameters' => 'DisburseFunds',
-                    'return' => 'DisburseFundsResponse',
+                    'wrapParameters' => 'net\heartlandpaymentservices\test\BillingDataManagement\v3\BillingDataManagementService\DisburseFunds',
+                    'return' => 'net\heartlandpaymentservices\test\BillingDataManagement\v3\BillingDataManagementService\DisburseFundsResponse',
                 )
             ),
             $parser->getWsdlOperations()
