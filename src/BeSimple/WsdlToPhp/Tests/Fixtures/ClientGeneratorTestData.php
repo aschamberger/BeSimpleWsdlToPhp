@@ -41,4 +41,9 @@ return array(
             'return' => 'My\\Webservices\\Car',
         ),
     ),
+    'types' => array(
+        'Customer' => 'My\\Webservices\\Customer',
+        'OnlineCustomer' => 'My\\Webservices\\OnlineCustomer',
+        'Car' => 'My\\Webservices\\Car',
+    ),
 );
