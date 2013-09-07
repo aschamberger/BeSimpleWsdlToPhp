@@ -68,7 +68,7 @@ class WsdlParser
     /**
      * WSDL errors.
      *
-     * @var array
+     * @var array(WsdlParserError)
      */
     protected $errors = array();
 
@@ -430,6 +430,8 @@ class WsdlParser
     /**
      * Recursive merge 2 or more arrays
      *
+     * @see: http://www.php.net/manual/de/function.array-merge-recursive.php#104145
+     *
      * @return array
      */
     public static function arrayMergeRecursive()
@@ -483,17 +485,10 @@ class WsdlParser
 
             $targetNamespace = $schema->getAttribute('targetNamespace');
             $namespace = $this->convertXmlNsToPhpNs($targetNamespace);
-
-            if (false !== strpos($targetNamespace, 'http')) {
-                $targetNamespace = '';
-            } else {
-                $targetNamespace .= '/';
-            }
-
             $xmlSchemaPrefix = $schema->lookupPrefix(Helper::NS_XML_SCHEMA);
 
             /** @var \DOMElement $element */
-            foreach ($this->domXpath->query($query . '/xsd:element') as $element) {
+            foreach ($this->domXpath->query("//xsd:schema[@targetNamespace=\"{$targetNamespace}\"]/xsd:element") as $element) {
                 $attrType = $element->getAttribute('type');
                 list($prefix, $typeName) = $this->getTypeName($attrType);
 
@@ -505,9 +500,6 @@ class WsdlParser
                 $attrName = $element->getAttribute('name');
 
                 if ($element->hasChildNodes()) {
-                    if ($subTypeName = $element->getAttribute('name')) {
-                        $attrName = $subTypeName;
-                    }
                     $wsdlType = $this->parseType(
                         $element,
                         $schema,
@@ -529,17 +521,20 @@ class WsdlParser
 
                     /** @var $type \DOMElement */
                     if ($type = $types->item(0)) {
-                        if ($subTypeName = $type->getAttribute('name')) {
-                            $attrName = $subTypeName;
-                        }
                         $wsdlType = $this->parseType(
                             $type,
                             $schema,
                             $xmlSchemaPrefix,
                             $namespace
                         );
+                        $wsdlType['name'] = $attrName;
                     }
                 }
+
+                if (false !== strpos($targetNamespace, 'http')) {
+                    $targetNamespace = '';
+                }
+
                 if (!empty($wsdlType)) {
                     if (!empty($wsdlTypes[$targetNamespace . $attrName])) {
                         $this->addError(
