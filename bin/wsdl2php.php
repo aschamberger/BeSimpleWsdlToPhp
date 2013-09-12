@@ -15,22 +15,26 @@ use BeSimple\WsdlToPhp\WsdlParser;
 use BeSimple\WsdlToPhp\ClassGenerator;
 use BeSimple\WsdlToPhp\ClientGenerator;
 
-error_reporting(E_ALL | E_STRICT);
-
-include getcwd() .'/vendor/autoload.php';
+include __DIR__ . '/../vendor/autoload.php';
 
 $opts = array(
     'wsdl' => array(
         'shortKey' => 'w',
-        'access' => 'required',
-        'default' => null,
-        'doc' => 'Required! Path or url to wsdl file.',
+        'access'   => 'required',
+        'default'  => null,
+        'doc'      => 'Required! Path or url to wsdl file.',
     ),
     'client' => array(
         'shortKey' => 'c',
-        'access' => 'optional',
-        'default' => false,
-        'doc' => 'Name of client class, if it is empty client will not be generated.',
+        'access'   => 'optional',
+        'default'  => false,
+        'doc'      => 'Name of client class, if it is empty client will not be generated.',
+    ),
+    'parent' => array(
+        'shortKey' => null,
+        'access'   => 'optional',
+        'default'  => false,
+        'doc'      => 'Parent of Client class. Default value: \\SoapClient',
     ),
     'parent' => array(
         'shortKey' => null,
@@ -40,66 +44,66 @@ $opts = array(
     ),
     'namespace' => array(
         'shortKey' => 'n',
-        'access' => 'optional',
-        'default' => false,
-        'doc' => 'Root namespace of generated classes.',
+        'access'   => 'optional',
+        'default'  => false,
+        'doc'      => 'Root namespace of generated classes.',
     ),
     'soap_version' => array(
         'shortKey' => 'v',
-        'access' => 'optional',
-        'default' => SOAP_1_1,
-        'doc' => 'Soap version: 1 => 1.1 or 2 => 1.2. Default value: 1 => 1.1',
+        'access'   => 'optional',
+        'default'  => SOAP_1_1,
+        'doc'      => 'Soap version: 1 => 1.1 or 2 => 1.2. Default value: 1 => 1.1',
     ),
     'output_dir' => array(
         'shortKey' => 'o',
-        'access' => 'optional',
-        'default' => getcwd(),
-        'doc' => 'Output dir for classes. Default current dir.',
+        'access'   => 'optional',
+        'default'  => getcwd(),
+        'doc'      => 'Output dir for classes. Default current dir.',
     ),
     'extension' => array(
         'shortKey' => null,
-        'access' => 'optional',
-        'default' => 'php',
-        'doc' => 'Extension of generated files. Default value: php',
+        'access'   => 'optional',
+        'default'  => 'php',
+        'doc'      => 'Extension of generated files. Default value: php',
     ),
     'indent' => array(
         'shortKey' => null,
-        'access' => 'optional',
-        'default' => 4,
-        'doc' => 'How much indent would be used in generated files. Default value: 4',
+        'access'   => 'optional',
+        'default'  => 4,
+        'doc'      => 'How much indent would be used in generated files. Default value: 4',
     ),
     'overwrite' => array(
         'shortKey' => null,
-        'access' => 'no_values',
-        'default' => true,
-        'doc' => 'Disable overwrite present files. It does not have parameters.',
+        'access'   => 'no_values',
+        'default'  => true,
+        'doc'      => 'Disable overwrite present files. It does not have parameters.',
     ),
     'backup' => array(
         'shortKey' => null,
-        'access' => 'no_values',
-        'default' => true,
-        'doc' => 'Disable backup old files. It does not have parameters.',
+        'access'   => 'no_values',
+        'default'  => true,
+        'doc'      => 'Disable backup old files. It does not have parameters.',
     ),
     'generate_constructor' => array(
         'shortKey' => null,
-        'access' => 'no_values',
-        'default' => false,
-        'reverse' => true,
-        'doc' => 'Generate constructor in Types. It does not have parameters.',
+        'access'   => 'no_values',
+        'default'  => false,
+        'reverse'  => true,
+        'doc'      => 'Generate constructor in Types. It does not have parameters.',
     ),
     'instance_on_getter' => array(
         'shortKey' => null,
-        'access' => 'no_values',
-        'default' => false,
-        'reverse' => true,
-        'doc' => 'Make instance of related class on getter when property is null. ' . "\n\t" .
+        'access'   => 'no_values',
+        'default'  => false,
+        'reverse'  => true,
+        'doc'      => 'Make instance of related class on getter when property is null. ' . "\n\t" .
             'It does not have parameters. It does not work with access=public',
     ),
     'access' => array(
         'shortKey' => null,
-        'access' => 'optional',
-        'default' => 'public',
-        'doc' => 'Access level to properties. Default value: public.',
+        'access'   => 'optional',
+        'default'  => 'public',
+        'doc'      => 'Access level to properties. Default value: public.',
     ),
 );
 
@@ -155,17 +159,16 @@ foreach ($opts as $key => $vals) {
 }
 $options = array_merge($defaultOptions, $options);
 
-
 if (empty($options['wsdl'])) {
     die('Path to WSDL file is required!' . PHP_EOL . 'All parameters:' . PHP_EOL . implode(PHP_EOL, $outputArr) . PHP_EOL);
 }
 
 echo "Starts\n";
-$p = new WsdlParser($options['wsdl'], $options['soap_version']);
-$wsdlTypes = $p->getWsdlTypes();
-if ($p->hasErrors()) {
+$parser = new WsdlParser($options['wsdl'], $options['soap_version']);
+$wsdlTypes = $parser->getWsdlTypes();
+if ($parser->hasErrors()) {
     echo "Errors:\n";
-    foreach ($p->getErrors() as $error) {
+    foreach ($parser->getErrors() as $error) {
         echo $error->toString(), "\n";
     }
 }
@@ -189,11 +192,12 @@ if (!empty($wsdlTypes)) {
 if (false !== $options['client']) {
     $generator = new ClientGenerator($options, $wsdlTypes);
     $data = array(
-        'wsdl' => $options['wsdl'],
-        'namespace' => $options['namespace'],
-        'name' => $options['client'],
-        'operations' => $p->getWsdlOperations(),
-        'types' => $classmapTypes,
+        'wsdl'       => $options['wsdl'],
+        'namespace'  => $options['namespace'],
+        'parent'     => $options['parent'],
+        'name'       => $options['client'],
+        'operations' => $parser->getWsdlOperations(),
+        'types'      => $classmapTypes,
     );
     $file = $generator->writeClass($data, $options['output_dir']);
     echo 'written file ' . $file . PHP_EOL;

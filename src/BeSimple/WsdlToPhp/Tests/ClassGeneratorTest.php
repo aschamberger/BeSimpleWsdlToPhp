@@ -11,17 +11,19 @@
  * with this source code in the file LICENSE.
  */
 
-namespace BeSimple\Tests\WsdlToPhp;
+namespace BeSimple\WsdlToPhp\Tests;
 
 use BeSimple\WsdlToPhp\ClassGenerator;
 
 class ClassGeneratorTest extends \PHPUnit_Framework_TestCase
 {
+    protected $fixturesDir;
     protected $testData;
 
     protected function setUp()
     {
-        $filename = dirname(__DIR__).DIRECTORY_SEPARATOR.'Fixtures/ClassGeneratorTestData.php';
+        $this->fixturesDir = __DIR__ . "/Fixtures";
+        $filename = $this->fixturesDir.'/ClassGeneratorTestData.php';
         $this->testData = require $filename;
     }
 
@@ -34,13 +36,11 @@ class ClassGeneratorTest extends \PHPUnit_Framework_TestCase
         $targetDir = sys_get_temp_dir();
 
         $target = $generator->writeClass($this->testData['customer'], $targetDir);
-        $file1 = dirname(__DIR__).DIRECTORY_SEPARATOR.'Fixtures/My/Webservices/Customer.php';
+        $file1 = $this->fixturesDir.'/My/Webservices/Customer.php';
         $this->assertFileEquals($file1, $target);
-//         unset($file1);
         $target = $generator->writeClass($this->testData['car'], $targetDir);
-        $file2 = dirname(__DIR__).DIRECTORY_SEPARATOR.'Fixtures/My/Webservices/Car.php';
+        $file2 = $this->fixturesDir.'/My/Webservices/Car.php';
         $this->assertFileEquals($file2, $target);
-//         unset($file2);
     }
 
     public function testGeneratorExtends()
@@ -49,9 +49,8 @@ class ClassGeneratorTest extends \PHPUnit_Framework_TestCase
         $targetDir = sys_get_temp_dir();
 
         $target = $generator->writeClass($this->testData['online_customer'], $targetDir);
-        $file = dirname(__DIR__).DIRECTORY_SEPARATOR.'Fixtures/My/Webservices/OnlineCustomer.php';
+        $file = $this->fixturesDir.'/My/Webservices/OnlineCustomer.php';
         $this->assertFileEquals($file, $target);
-//         unset($file);
     }
 
     public function testGeneratorEmpty()
@@ -60,8 +59,7 @@ class ClassGeneratorTest extends \PHPUnit_Framework_TestCase
         $targetDir = sys_get_temp_dir();
 
         $target = $generator->writeClass($this->testData['empty'], $targetDir);
-        $file = dirname(__DIR__).DIRECTORY_SEPARATOR.'Fixtures/My/Webservices/EmptyClass.php';
+        $file = $this->fixturesDir.'/My/Webservices/EmptyClass.php';
         $this->assertFileEquals($file, $target);
-//         unset($file);
     }
 }

@@ -19,7 +19,7 @@ use BeSimple\SoapCommon\Helper;
  * This class parses WSDL files and allows to retrieve types and operations.
  *
  * @author Andreas Schamberger <mail@andreass.net>
- * @see http://www.w3.org/TR/wsdl
+ * @see    http://www.w3.org/TR/wsdl
  */
 class WsdlParser
 {
@@ -68,7 +68,7 @@ class WsdlParser
     /**
      * WSDL errors.
      *
-     * @var array
+     * @var array(WsdlParserError)
      */
     protected $errors = array();
 
@@ -89,21 +89,23 @@ class WsdlParser
     }
 
     /**
-     * @param \Exception $parent - previous exception, point to code position
-     * @param string $message
-     * @param string $wsdlFile
-     * @param int $line
+     * Add WSDL parsing error.
+     *
+     * @param string $message  Error message
+     * @param int    $line     Error line number
+     * @param string $wsdlFile WSDL file name
      */
-    public function addError($parent, $message, $line = null, $wsdlFile = null)
+    public function addError($message, $line = null, $wsdlFile = null)
     {
         if (null === $wsdlFile) {
             $wsdlFile = $this->wsdlFile;
         }
-        $this->errors[] = new WsdlException($parent, $message, $wsdlFile, $line);
+        $this->errors[] = new WsdlParserError($message, $wsdlFile, $line);
     }
 
-
     /**
+     * Has the WSDL parser instance any errors.
+     *
      * @return bool
      */
     public function hasErrors()
@@ -112,6 +114,8 @@ class WsdlParser
     }
 
     /**
+     * Get list of WSDL parser errors.
+     *
      * @return array
      */
     public function getErrors()
@@ -120,7 +124,10 @@ class WsdlParser
     }
 
     /**
-     * @param string $wsdlFile
+     * Load WSDL XML file.
+     *
+     * @param string $wsdlFile WSDL file name
+     *
      * @return bool
      */
     protected function loadXml($wsdlFile)
@@ -134,9 +141,13 @@ class WsdlParser
         $this->domDocument = new \DOMDocument('1.0', 'utf-8');
         $this->domDocument->load($this->wsdlFile = $wsdlFile);
         $this->initXpathDom();
+
         return true;
     }
 
+    /**
+     * Init XPATH object.
+     */
     protected function initXpathDom()
     {
         $this->domXpath = new \DOMXPath($this->domDocument);
@@ -147,6 +158,8 @@ class WsdlParser
     }
 
     /**
+     * Get WSDL operations.
+     *
      * @return array
      */
     public function getWsdlOperations()
@@ -154,6 +167,7 @@ class WsdlParser
         if (empty($this->wsdlOperations)) {
             $this->parseWsdlOperations();
         }
+
         return $this->wsdlOperations;
     }
 
@@ -171,22 +185,12 @@ class WsdlParser
      */
     protected function parseWsdlOperations()
     {
-        $queries = array(
-            '/wsdl:definitions/wsdl:binding/soap:binding[@style="document"]/../wsdl:operation/wsdl:input/soap:body[@use="literal"]/../..',
-            '/wsdl:definitions/wsdl:portType/wsdl:operation'
-        );
+        $query = '/wsdl:definitions/wsdl:portType/wsdl:operation';
+        $operations = $this->domXpath->query($query);
 
-        foreach ($queries as $query) {
-
-            $operations = $this->domXpath->query($query);
-
-            $wsdlOperations = array();
-            foreach ($operations as $operation) {
-                $portType = $operation->parentNode->getAttribute('type');
-                $wsdlOperations = array_merge($wsdlOperations, $this->resolveOperation($operation, $portType));
-            }
-
-            $this->wsdlOperations = array_merge($this->wsdlOperations, $wsdlOperations);
+        foreach ($operations as $operation) {
+            $portType = $operation->parentNode->getAttribute('type');
+            $this->wsdlOperations[] = $this->resolveOperation($operation, $portType);
         }
     }
 
@@ -194,7 +198,7 @@ class WsdlParser
      * Resolve operation.
      *
      * @param \DOMElement $operation Soap operation
-     * @param string $portType      Port type
+     * @param string      $portType  Port type
      *
      * @return array()
      */
@@ -204,25 +208,24 @@ class WsdlParser
         list($prefix, $name) = $this->getTypeName($portType);
         $ns = $this->domDocument->lookupNamespaceURI($prefix);
 
-        $wsdlOperations = array();
         $inputMessage = $operation->getElementsByTagName('input')->item(0)->getAttribute('message');
         $outputMessage = $operation->getElementsByTagName('output')->item(0)->getAttribute('message');
 
         list($prefix, $inputType) = $this->getTypeName($this->resolveMessageType($inputMessage));
-        $tns = '';//$this->domDocument->lookupNamespaceURI($prefix).'/'; // TODO Resolve namespaces
+        $tns = rtrim($this->domDocument->lookupNamespaceURI($prefix), '/').'/';
         $inputTypeNS = $tns.$inputType;
 
         list($prefix, $outputType) = $this->getTypeName($this->resolveMessageType($outputMessage));
-        $tns = '';//$this->domDocument->lookupNamespaceURI($prefix).'/'; // TODO Resolve namespaces
+        $tns = rtrim($this->domDocument->lookupNamespaceURI($prefix), '/').'/';
         $outputTypeNS = $tns.$outputType;
 
         $this->getWsdlTypes();
         $inputTypeWsdl = $this->wsdlTypes[$inputTypeNS];
         $outputTypeWsdl = $this->wsdlTypes[$outputTypeNS];
 
-        $parameters = $this->getOperationParameters($this->wsdlTypes, $inputTypeWsdl['name']);
+        $parameters = $this->getOperationParameters($this->wsdlTypes, $inputTypeNS);
 
-        $wsdlOperations[] = array(
+        return array(
             'name' => $operationName,
             'parameters' => $parameters,
             'wrapParameters' =>  (empty($inputTypeWsdl['namespace']) ?
@@ -230,8 +233,6 @@ class WsdlParser
             'return' => (empty($outputTypeWsdl['namespace']) ?
                 '' : $outputTypeWsdl['namespace'] . '\\') . $outputTypeWsdl['name'],
         );
-
-        return $wsdlOperations;
     }
 
     /**
@@ -239,6 +240,8 @@ class WsdlParser
      *
      * @param array  $wsdlTypes   WSDL types
      * @param string $inputTypeNS Type to resolve
+     *
+     * @return array
      */
     private function getOperationParameters($wsdlTypes, $inputTypeNS)
     {
@@ -251,6 +254,7 @@ class WsdlParser
             $inputTypeNS = $inputTypeWsdl['parentXml'];
             $parameters = array_merge($parameters, $this->getOperationParameters($wsdlTypes, $inputTypeNS));
         }
+
         return $parameters;
     }
 
@@ -272,36 +276,42 @@ class WsdlParser
     }
 
     /**
-     * @param string $name
-     * @param \DOMElement $element
-     * @param string $attributeName
-     * @param string $xmlSchemaPrefix
+     * Make property.
+     *
+     * @param string      $name            Name
+     * @param \DOMElement $element         Element
+     * @param string      $attributeName   Attribute name
+     * @param string      $xmlSchemaPrefix XML schema prefix
+     * @param string      $namespace       Current target namespace
      *
      * @return array
      */
-    protected function makeProperty($name, $element, $attributeName, $xmlSchemaPrefix)
+    protected function makeProperty($name, $element, $attributeName, $xmlSchemaPrefix, $namespace=null)
     {
         return array(
             'name'     => $name,
             'phpType'  => $this->getPhpTypeForSchemaType(
                 $element->getAttribute($attributeName),
-                $xmlSchemaPrefix
+                $xmlSchemaPrefix,
+                $namespace
             ),
             'wsdlType' => $element->getAttribute($attributeName),
             'restrictions' => array(),
-            'isNull' => (bool)$element->getAttribute('nillable'),
+            'isNull' => (bool) $element->getAttribute('nillable'),
         );
     }
 
     /**
-     * @param \DOMElement $type
-     * @param \DOMElement $schema
-     * @param string $xmlSchemaPrefix
-     * @param string $namespace
+     * Parse type.
+     *
+     * @param \DOMElement $type            Type DOMElement
+     * @param \DOMElement $schema          Schema DOMElement
+     * @param string      $xmlSchemaPrefix XML schema prefix
+     * @param string      $namespace       XML namespace
      *
      * @return array
      */
-    protected function parseType($type, $schema, $xmlSchemaPrefix, $namespace)
+    protected function parseType(\DOMElement $type, \DOMElement $schema, $xmlSchemaPrefix, $namespace)
     {
         $wsdlType = array(
             'wsdl'      => $this->wsdlFile,
@@ -317,18 +327,19 @@ class WsdlParser
 
             /** @var \DOMElement $extension */
             foreach ($type->getElementsByTagNameNS(Helper::NS_XML_SCHEMA, 'extension') as $extension) {
-                $property = $this->makeProperty('_', $extension, 'base', $xmlSchemaPrefix);
+                $property = $this->makeProperty('_', $extension, 'base', $xmlSchemaPrefix, $namespace);
                 $wsdlType['properties'] = array($property);
 
                 foreach ($type->getElementsByTagNameNS(Helper::NS_XML_SCHEMA, 'attribute') as $attribute) {
                     if ($attribute->hasAttribute('ref')) {
-                        $property = $this->resolveAttribute($schema, $attribute, $xmlSchemaPrefix);
+                        $property = $this->resolveAttribute($schema, $attribute, $xmlSchemaPrefix, $namespace);
                     } else {
                         $property = $this->makeProperty(
                             $attribute->getAttribute('name'),
                             $attribute,
                             'type',
-                            $xmlSchemaPrefix
+                            $xmlSchemaPrefix,
+                            $namespace
                         );
                     }
                     $wsdlType['properties'][] = $property;
@@ -341,19 +352,19 @@ class WsdlParser
                     $extension = $extension->item(0);
                     $wsdlType['parent'] = $this->getPhpTypeForSchemaType(
                         $extension->getAttribute('base'),
-                        $xmlSchemaPrefix
+                        $xmlSchemaPrefix,
+                        $namespace
                     );
                 }
-                $this->resolveElements($type, $wsdlType, $xmlSchemaPrefix);
+                $this->resolveElements($type, $wsdlType, $xmlSchemaPrefix, $namespace);
             } else {
-                $this->resolveElements($type, $wsdlType, $xmlSchemaPrefix);
+                $this->resolveElements($type, $wsdlType, $xmlSchemaPrefix, $namespace);
             }
         }
         if (!empty($wsdlType['properties'])) {
             foreach ($wsdlType['properties'] as $property) {
                 if (!empty($property['phpType']) && $wsdlType['name'] == $property['phpType']) {
                     $this->addError(
-                        new Exception(),
                         "Type '{$wsdlType['name']}' have property '{$property['name']}' point to himself",
                         $type->getLineNo()
                     );
@@ -365,7 +376,9 @@ class WsdlParser
     }
 
     /**
-     * @param string $typeName
+     * Get type name.
+     *
+     * @param string $typeName Type name
      *
      * @return array
      */
@@ -379,6 +392,7 @@ class WsdlParser
         } else {
             $name = $names[0];
         }
+
         return array(
             $prefix,
             $name,
@@ -386,11 +400,13 @@ class WsdlParser
     }
 
     /**
-     * @param \DOMElement $schema
+     * Parse XML imports.
+     *
+     * @param \DOMElement $schema Schema DOMElement
      *
      * @return array of Types
      */
-    protected function parseImports($schema)
+    protected function parseImports(\DOMElement $schema)
     {
         $wsdlTypes = array();
         $imports = $schema->getElementsByTagNameNS(Helper::NS_XML_SCHEMA, 'import');
@@ -401,7 +417,7 @@ class WsdlParser
             /** @var \DOMElement $import */
             foreach ($imports as $import) {
                 $location = $import->getAttribute('schemaLocation');
-                if ($this->loadXml($location)) {
+                if ("" != $location && $this->loadXml($location)) {
                     $wsdlTypes = array_merge($wsdlTypes, $this->parseWsdlTypes('/xsd:schema'));
                 }
             }
@@ -409,11 +425,14 @@ class WsdlParser
             $this->wsdlFile = $oldWsdlFile;
             $this->initXpathDom();
         }
+
         return $wsdlTypes;
     }
 
     /**
      * Recursive merge 2 or more arrays
+     *
+     * @see: http://www.php.net/manual/de/function.array-merge-recursive.php#104145
      *
      * @return array
      */
@@ -421,6 +440,7 @@ class WsdlParser
     {
         if (func_num_args() < 2) {
             trigger_error(__FUNCTION__ . ' needs two or more array arguments', E_USER_WARNING);
+
             return null;
         }
         $arrays = func_get_args();
@@ -429,9 +449,12 @@ class WsdlParser
             $array = array_shift($arrays);
             if (!is_array($array)) {
                 trigger_error(__FUNCTION__ . ' encountered a non array argument', E_USER_WARNING);
+
                 return null;
             }
-            if (!$array) continue;
+            if (!$array) {
+                continue;
+            }
             foreach ($array as $key => $value) {
                 if (is_string($key)) {
                     if (is_array($value) && array_key_exists($key, $merged) && is_array($merged[$key])) {
@@ -444,11 +467,14 @@ class WsdlParser
                 }
             }
         }
+
         return $merged;
     }
 
     /**
      * Extracts WSDL types from WSDL file.
+     *
+     * @param string $query XPATH query
      *
      * @return array(string=>mixed)
      */
@@ -461,17 +487,10 @@ class WsdlParser
 
             $targetNamespace = $schema->getAttribute('targetNamespace');
             $namespace = $this->convertXmlNsToPhpNs($targetNamespace);
-
-            if (false !== strpos($targetNamespace, 'http')) {
-                $targetNamespace = '';
-            } else {
-                $targetNamespace .= '/';
-            }
-
             $xmlSchemaPrefix = $schema->lookupPrefix(Helper::NS_XML_SCHEMA);
 
             /** @var \DOMElement $element */
-            foreach ($this->domXpath->query($query . '/xsd:element') as $element) {
+            foreach ($this->domXpath->query("//xsd:schema[@targetNamespace=\"{$targetNamespace}\"]/xsd:element") as $element) {
                 $attrType = $element->getAttribute('type');
                 list($prefix, $typeName) = $this->getTypeName($attrType);
 
@@ -483,9 +502,6 @@ class WsdlParser
                 $attrName = $element->getAttribute('name');
 
                 if ($element->hasChildNodes()) {
-                    if ($subTypeName = $element->getAttribute('name')) {
-                        $attrName = $subTypeName;
-                    }
                     $wsdlType = $this->parseType(
                         $element,
                         $schema,
@@ -500,7 +516,6 @@ class WsdlParser
 
                     if (1 < $types->length) {
                         $this->addError(
-                            new Exception(),
                             "Element have more then one child #2",
                             $types->item(0)->parentNode->getLineNo()
                         );
@@ -508,39 +523,42 @@ class WsdlParser
 
                     /** @var $type \DOMElement */
                     if ($type = $types->item(0)) {
-                        if ($subTypeName = $type->getAttribute('name')) {
-                            $attrName = $subTypeName;
-                        }
                         $wsdlType = $this->parseType(
                             $type,
                             $schema,
                             $xmlSchemaPrefix,
                             $namespace
                         );
+                        $wsdlType['name'] = $attrName;
                     }
                 }
+
+                $wsdlTypeName = rtrim($targetNamespace, '/').'/'.$attrName;
+
                 if (!empty($wsdlType)) {
-                    if (!empty($wsdlTypes[$targetNamespace . $attrName])) {
+                    if (!empty($wsdlTypes[$wsdlTypeName])) {
                         $this->addError(
-                            new Exception(),
-                            "Type: '{$targetNamespace}{$attrName}' in file '{$wsdlType['wsdl']}' already exist",
+                            "Type: '{$wsdlTypes[$wsdlTypeName]['namespace']}\{$wsdlTypes[$wsdlTypeName]['name']}' in file '{$wsdlType['wsdl']}' already exist",
                             0,
-                            $wsdlTypes[$targetNamespace . $attrName]['wsdl']
+                            $wsdlTypes[$wsdlTypeName]['wsdl']
                         );
-                        $wsdlTypes[$targetNamespace . $attrName] = $this->arrayMergeRecursive(
-                            $wsdlTypes[$targetNamespace . $attrName],
+                        $wsdlTypes[$wsdlTypeName] = $this->arrayMergeRecursive(
+                            $wsdlTypes[$wsdlTypeName],
                             $wsdlType
                         );
                     } else {
-                        $wsdlTypes[$targetNamespace . $attrName] = $wsdlType;
+                        $wsdlTypes[$wsdlTypeName] = $wsdlType;
                     }
                 }
             }
         }
+
         return $wsdlTypes;
     }
 
     /**
+     * Get list of WSDL types.
+     *
      * @return array
      */
     public function getWsdlTypes()
@@ -548,6 +566,7 @@ class WsdlParser
         if (empty($this->wsdlTypes)) {
             $this->wsdlTypes = $this->parseWsdlTypes();
         }
+
         return $this->wsdlTypes;
     }
 
@@ -560,38 +579,56 @@ class WsdlParser
      */
     private function convertXmlNsToPhpNs($ns)
     {
-        return ''; // TODO Resolve namespaces
-        $ns = rtrim($ns, '/');
-        $nsArr = explode('/', $ns);
-        $namespace = array_pop($nsArr);
-        $namespace = str_replace('.', '\\', $namespace);
+        // java style http://soap.domain.tld/myservice -> tld\domain\soap\myservice
+        if (false !== strpos($ns, 'http')) {
+            $url = parse_url($ns);
+            $host = array_reverse(explode('.', $url['host']));
+            $namespace = implode('\\', $host).str_replace('/', '\\', $url['path']);
+        } else {
+            $namespace = str_replace('/', '\\', $ns);
+        }
+
         $namespace = preg_replace('/[^\w\\\]/', '_', $namespace);
         $namespace = rtrim($namespace, '\\');
 
         return $namespace;
     }
 
-    private function getPhpTypeForSchemaType($xmlSchemaType, $xmlSchemaPrefix)
+    /**
+     * Get corresponding PHP type for XML schema type.
+     *
+     * @param string $xmlSchemaType   XML schema type
+     * @param string $xmlSchemaPrefix XML schema prefix
+     * @param string $namespace       Current target namespace
+     *
+     * @return string
+     */
+    private function getPhpTypeForSchemaType($xmlSchemaType, $xmlSchemaPrefix, $namespace)
     {
-
         // PHP type for complex type (=class name)...
         list($prefix, $type) = $this->getTypeName($xmlSchemaType);
 
         // XML schema types
-        if ($xmlSchemaPrefix == substr($xmlSchemaType, 0, strlen($xmlSchemaPrefix))) {
+        if ($xmlSchemaPrefix == $prefix) {
             return XmlSchemaMapper::xmlSchemaToPhpType($xmlSchemaType, $xmlSchemaPrefix);
         }
-        $ns = $this->domDocument->lookupNamespaceURI($prefix);
-        $namespace = $this->convertXmlNsToPhpNs($ns);
+
+        if ('tns' != $prefix) {
+            $ns = $this->domDocument->lookupNamespaceURI($prefix);
+            $namespace = $this->convertXmlNsToPhpNs($ns);
+        }
+
         return ($namespace? $namespace . '\\' : '') . $type;
     }
 
     /**
-     * @param \DOMElement $type
-     * @param $property
-     * @param null $xmlSchemaPrefix
+     * Resolve XML schema element restrictions.
+     *
+     * @param \DOMElement $type            Type \DOMElement
+     * @param array       &$property       Property array
+     * @param string      $xmlSchemaPrefix XML schema prefix
      */
-    private function resolveRestrictions($type, &$property, $xmlSchemaPrefix = null)
+    private function resolveRestrictions(\DOMElement $type, &$property, $xmlSchemaPrefix = null)
     {
         $restrictions = $type->getElementsByTagNameNS(Helper::NS_XML_SCHEMA, 'restriction');
 
@@ -620,7 +657,17 @@ class WsdlParser
         }
     }
 
-    private function resolveAttribute($schema, $attribute, $xmlSchemaPrefix)
+    /**
+     * Resolve attribute.
+     *
+     * @param string $schema          Schema \DOMElement
+     * @param string $attribute       Attribute \DOMElement
+     * @param string $xmlSchemaPrefix XML schema prefix
+     * @param string $namespace       Current target namespace
+     *
+     * @return array()
+     */
+    private function resolveAttribute(\DOMElement $schema, \DOMElement $attribute, $xmlSchemaPrefix, $namespace)
     {
         list($prefix, $name) = $this->getTypeName($attribute->getAttribute('ref'));
         $ns = $schema->lookupNamespaceURI($prefix);
@@ -636,7 +683,8 @@ class WsdlParser
                 $attributeElement->getAttribute('name'),
                 $restriction,
                 'base',
-                $xmlSchemaPrefix
+                $xmlSchemaPrefix,
+                $namespace
             );
 
             $this->resolveRestrictions($attributeElement, $property);
@@ -646,18 +694,21 @@ class WsdlParser
     }
 
     /**
-     * @param \DOMElement $type
-     * @param array $wsdlType
-     * @param string $xmlSchemaPrefix
+     * Resolve elements.
+     *
+     * @param \DOMElement $type            Type \DOMElement
+     * @param array       &$wsdlType       WSDL type
+     * @param string      $xmlSchemaPrefix XML schema prefix
+     * @param string      $namespace       Current target namespace
      */
-    private function resolveElements($type, &$wsdlType, $xmlSchemaPrefix)
+    private function resolveElements($type, &$wsdlType, $xmlSchemaPrefix, $namespace)
     {
         $elements = $type->getElementsByTagNameNS(Helper::NS_XML_SCHEMA, 'element');
 
         if ($elements->length > 0) {
             $wsdlType['properties'] = array();
             foreach ($elements as $element) {
-                $property = $this->makeProperty($element->getAttribute('name'), $element, 'type', $xmlSchemaPrefix);
+                $property = $this->makeProperty($element->getAttribute('name'), $element, 'type', $xmlSchemaPrefix, $namespace);
 
                 if ($element->hasAttribute('maxOccurs') &&
                     ($element->getAttribute('maxOccurs') > 1 ||
