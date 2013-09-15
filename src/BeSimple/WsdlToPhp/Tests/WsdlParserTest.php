@@ -245,20 +245,20 @@ class WsdlParserTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(
             array(
                 array(
-                    'name' => 'AddBlindPayment',
+                    'name' => 'TestOperationOne',
                     'parameters' => array(
-                        'AddBlindPaymentRequest' => 'AddBlindPaymentRequest',
+                        'TestOperationOneRequest' => 'string',
                     ),
-                    'wrapParameters' => 'net\heartlandpaymentservices\test\BillingDataManagement\v3\BillingDataManagementService\AddBlindPayment',
-                    'return' => 'net\heartlandpaymentservices\test\BillingDataManagement\v3\BillingDataManagementService\AddBlindPaymentResponse',
+                    'wrapParameters' => 'pl\besim\wsdl\WsdlToPhp\TestOperationOne',
+                    'return' => 'pl\besim\wsdl\WsdlToPhp\TestOperationOneResponse',
                 ),
                 array(
-                    'name' => 'DisburseFunds',
+                    'name' => 'TestOperationTwo',
                     'parameters' => array(
-                        'DisburseFundsRequest' => 'DisburseFundsRequest'
+                        'TestOperationTwoRequest' => 'string'
                     ),
-                    'wrapParameters' => 'net\heartlandpaymentservices\test\BillingDataManagement\v3\BillingDataManagementService\DisburseFunds',
-                    'return' => 'net\heartlandpaymentservices\test\BillingDataManagement\v3\BillingDataManagementService\DisburseFundsResponse',
+                    'wrapParameters' => 'pl\besim\wsdl\WsdlToPhp\TestOperationTwo',
+                    'return' => 'pl\besim\wsdl\WsdlToPhp\TestOperationTwoResponse',
                 )
             ),
             $parser->getWsdlOperations()
