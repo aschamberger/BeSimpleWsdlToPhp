@@ -100,6 +100,5 @@ return array(
         'parent' => '',
         'documentation' => '',
         'properties' => array(),
-        'isNull' => false,
     ),
 );
