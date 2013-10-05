@@ -427,7 +427,11 @@ class WsdlParser
             $wsdlType['documentation'] = trim($doc->nodeValue);
         }
 
-        $simpleType = $type->getElementsByTagNameNS(Helper::NS_XML_SCHEMA, 'simpleType')->item(0);
+        if ($type->localName == 'simpleType') {
+            $simpleType = $type;
+        } else {
+            $simpleType = $type->getElementsByTagNameNS(Helper::NS_XML_SCHEMA, 'simpleType')->item(0);
+        }
 
         if (null !== $simpleType) {
             $property = array('name' => '_');
