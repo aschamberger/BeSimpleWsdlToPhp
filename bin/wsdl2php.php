@@ -167,6 +167,9 @@ if ($parser->hasErrors()) {
     }
 }
 
+var_dump($wsdlTypes);
+exit;
+
 echo "Generates\n";
 $generator = new ClassGenerator($options, $wsdlTypes);
 $classmapTypes = array();
@@ -177,7 +180,7 @@ if (!empty($wsdlTypes)) {
         }
         $file = $generator->writeClass($type, $options['output_dir']);
         echo 'written file ' . $file . PHP_EOL;
-        $classmapTypes[$type['name']] = '\\' . $type['namespace'] .'\\' . $type['name'];
+        $classmapTypes[$type['name']] = $type['namespace'] .'\\' . $type['name'];
     }
 } else {
     echo "No types found\n";

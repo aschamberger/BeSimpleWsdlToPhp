@@ -38,7 +38,7 @@ return array(
         'properties' => array(
             array(
                 'name' => 'brand',
-                'phpType' => 'Brand',
+                'phpType' => 'string',
                 'wsdlType' => 'Brand',
                 'enum' => array(
                     'Audi',

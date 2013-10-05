@@ -1,54 +1,57 @@
-<?xml version="1.0" encoding="utf-8"?>
-<wsdl:definitions name="BillingDataManagementService"
-                  targetNamespace="https://test.heartlandpaymentservices.net/BillingDataManagement/v3/BillingDataManagementService"
-                  xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:wsx="http://schemas.xmlsoap.org/ws/2004/09/mex"
-                  xmlns:wsa10="http://www.w3.org/2005/08/addressing"
-                  xmlns:tns="https://test.heartlandpaymentservices.net/BillingDataManagement/v3/BillingDataManagementService"
-                  xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/"
-                  xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd"
-                  xmlns:wsp="http://schemas.xmlsoap.org/ws/2004/09/policy"
-                  xmlns:wsap="http://schemas.xmlsoap.org/ws/2004/08/addressing/policy"
-                  xmlns:msc="http://schemas.microsoft.com/ws/2005/12/wsdl/contract"
-                  xmlns:wsa="http://schemas.xmlsoap.org/ws/2004/08/addressing"
-                  xmlns:wsam="http://www.w3.org/2007/05/addressing/metadata"
-                  xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl"
-                  xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
-                  xmlns:i0="https://test.heartlandpaymentservices.net/BillingDataManagement/V3/BillingDataManagementService"
-                  xmlns:xsd="http://www.w3.org/2001/XMLSchema"
-                  xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/">
+<?xml version = "1.0" encoding = "utf-8"?>
+<wsdl:definitions name="BeSimpleWsdlToPhp"
+    targetNamespace="http://wsdl.besim.pl/WsdlToPhp" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
+    xmlns:tns="http://wsdl.besim.pl/WsdlToPhp">
     <wsdl:types>
-        <xs:schema attributeFormDefault="qualified" elementFormDefault="qualified"
-                   targetNamespace="http://schemas.microsoft.com/2003/10/Serialization/"
-                   xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://schemas.microsoft.com/2003/10/Serialization/">
-            <xs:element name="int" nillable="true" type="xs:int"/>
-            <xs:element name="char" nillable="true" type="tns:char"/>
-            <xs:simpleType name="char">
-                <xs:restriction base="xs:int"/>
-            </xs:simpleType>
-            <xs:element name="duration" nillable="true" type="tns:duration"/>
-            <xs:simpleType name="duration">
-                <xs:restriction base="xs:duration">
-                    <xs:pattern value="\-?P(\d*D)?(T(\d*H)?(\d*M)?(\d*(\.\d*)?S)?)?"/>
-                    <xs:minInclusive value="-P10675199DT2H48M5.4775808S"/>
-                    <xs:maxInclusive value="P10675199DT2H48M5.4775807S"/>
-                </xs:restriction>
-            </xs:simpleType>
-            <xs:element name="guid" nillable="true" type="tns:guid"/>
-            <xs:simpleType name="guid">
-                <xs:restriction base="xs:string">
-                    <xs:pattern value="[\da-fA-F]{8}-[\da-fA-F]{4}-[\da-fA-F]{4}-[\da-fA-F]{4}-[\da-fA-F]{12}"/>
-                </xs:restriction>
-            </xs:simpleType>
-            <xs:attribute name="FactoryType" type="xs:QName"/>
-            <xs:attribute name="Id" type="xs:ID"/>
-            <xs:attribute name="Ref" type="xs:IDREF"/>
+        <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+            xmlns:tns="http://wsdl.besim.pl/WsdlToPhp" elementFormDefault="qualified"
+            targetNamespace="http://wsdl.besim.pl/WsdlToPhp">
+            <xs:element name="age">
+                <xs:simpleType>
+                    <xs:restriction base="xs:integer">
+                        <xs:minInclusive value="0" />
+                        <xs:maxInclusive value="120" />
+                    </xs:restriction>
+                </xs:simpleType>
+            </xs:element>
+            <xs:element name="car">
+                <xs:simpleType>
+                    <xs:restriction base="xs:string">
+                        <xs:enumeration value="Audi" />
+                        <xs:enumeration value="Golf" />
+                        <xs:enumeration value="BMW" />
+                    </xs:restriction>
+                </xs:simpleType>
+            </xs:element>
+            <xs:element name="letter">
+                <xs:simpleType>
+                    <xs:restriction base="xs:string">
+                        <xs:pattern value="[a-z]" />
+                    </xs:restriction>
+                </xs:simpleType>
+            </xs:element>
+            <xs:element name="prodid">
+                <xs:simpleType>
+                    <xs:restriction base="xs:integer">
+                        <xs:pattern value="[0-9][0-9][0-9][0-9][0-9]" />
+                    </xs:restriction>
+                </xs:simpleType>
+            </xs:element>
+            <xs:element name="password1">
+                <xs:simpleType>
+                    <xs:restriction base="xs:string">
+                        <xs:length value="8" />
+                    </xs:restriction>
+                </xs:simpleType>
+            </xs:element>
+            <xs:element name="password2">
+                <xs:simpleType>
+                    <xs:restriction base="xs:string">
+                        <xs:minLength value="5" />
+                        <xs:maxLength value="8" />
+                    </xs:restriction>
+                </xs:simpleType>
+            </xs:element>
         </xs:schema>
     </wsdl:types>
-    <wsdl:service name="BillingDataManagementService">
-        <wsdl:port name="BasicHttpBinding_IBillingDataManagementService"
-                   binding="i0:BasicHttpBinding_IBillingDataManagementService">
-            <soap:address
-                    location="https://heartlandpaymentservices.net/BillingDataManagement/v3/BillingDataManagementService.svc"/>
-        </wsdl:port>
-    </wsdl:service>
 </wsdl:definitions>

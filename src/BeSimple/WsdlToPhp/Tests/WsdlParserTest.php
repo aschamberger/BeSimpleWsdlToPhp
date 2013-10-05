@@ -22,91 +22,123 @@ class WsdlParserTest extends \PHPUnit_Framework_TestCase
     protected function setUp()
     {
         $this->fixturesDir = __DIR__ . "/Fixtures";
-    }
 
-    /**
-     * @test
-     */
-    public function getWsdlTypesSimpleAndIncludes()
-    {
-        $wsdlPath = $this->fixturesDir.'/wsdl/includes.wsdl';
-        $parser = new WsdlParser($wsdlPath, SOAP_1_2);
+        $wsdlDir = $this->fixturesDir.'/wsdl/';
 
-        $this->assertEquals(
-            array(
-                'http://schemas.datacontract.org/2004/07/Transmodus.Wrapper/ACHAccountType' => array(
-                    'wsdl' => 'https://heartlandpaymentservices.net/BillingDataManagement/v3/BillingDataManagementService.svc?xsd=xsd3',
-                    'namespace' => 'org\\datacontract\\schemas\\2004\\07\\Transmodus_Wrapper',
-                    'name' => 'ACHAccountType',
-                    'properties' => array(
-                        array(
-                            'enum' => array(
-                                'Unassigned',
-                                'Personal',
-                                'Business',
-                            ),
-                            'restrictions' => array(
-                                'enumeration' => 'Business'
-                            ),
-                            'wsdlType' => 'xs:string',
-                        )
-                    )
-                ),
-                'http://schemas.datacontract.org/2004/07/Transmodus.Wrapper/ACHDepositType' => array(
-                    'wsdl' => 'https://heartlandpaymentservices.net/BillingDataManagement/v3/BillingDataManagementService.svc?xsd=xsd3',
-                    'namespace' => 'org\\datacontract\\schemas\\2004\\07\\Transmodus_Wrapper',
-                    'name' => 'ACHDepositType',
-                    'properties' => array(
-                        array(
-                            'enum' => array(
-                                'Unassigned',
-                                'Checking',
-                                'Savings',
-                            ),
-                            'restrictions' => array(
-                                'enumeration' => 'Savings'
-                            ),
-                            'wsdlType' => 'xs:string',
-                        )
-                    )
-                ),
-            ),
-            $parser->getWsdlTypes()
+        libxml_set_external_entity_loader(
+            function ($public, $system, $context) use($wsdlDir) {
+                if (is_file($system)) {
+                    return $system;
+                }
+                return $wsdlDir.basename($system);
+            }
         );
-        $this->assertFalse($parser->hasErrors());
     }
 
     /**
      * @test
+     *
+     * Same schema as in complexType test but spread over external and internal import
      */
-    public function getWsdlTypesComplex()
+    public function getWsdlTypesSchemaIncludes()
     {
-        $wsdlPath = $this->fixturesDir.'/wsdl/complex_types.wsdl';
+        $wsdlPath = $this->fixturesDir.'/wsdl/schemaIncludes.wsdl';
         $parser = new WsdlParser($wsdlPath, SOAP_1_2);
 
         $this->assertEquals(
             array(
-                'http://schemas.datacontract.org/2004/07/BDMS.NewModel/Credentials' => array(
+                'http://wsdl.besim.pl/WsdlToPhp/person' => array(
                     'wsdl' => $wsdlPath,
-                    'namespace' => 'org\datacontract\schemas\2004\07\BDMS_NewModel',
-                    'name' => 'Credentials',
+                    'namespace' => 'pl\besim\wsdl\WsdlToPhp',
+                    'name' => 'person',
                     'properties' => array(
-                        array(
-                            'name' => 'ApplicationID',
-                            'phpType' => 'int',
-                            'wsdlType' => 'xs:int',
-                            'isNull' => true,
-                            'restrictions' => array(),
-                        ),
-                        array(
-                            'name' => 'Password',
+                        array (
+                            'name' => 'firstname',
                             'phpType' => 'string',
                             'wsdlType' => 'xs:string',
-                            'isNull' => true,
                             'restrictions' => array(),
-                        )
-                    )
-                )
+                            'isNull' => false,
+                        ),
+                        array (
+                            'name' => 'lastname',
+                            'phpType' => 'string',
+                            'wsdlType' => 'xs:string',
+                            'restrictions' => array(),
+                            'isNull' => false,
+                        ),
+                    ),
+                ),
+                'http://wsdl.besim.pl/WsdlToPhp/employee' => array(
+                    'wsdl' => $wsdlPath,
+                    'namespace' => 'pl\besim\wsdl\WsdlToPhp',
+                    'name' => 'employee',
+                    'parent' => 'pl\besim\wsdl\WsdlToPhp3\fullpersoninfo',
+                    'properties' => array(),
+                ),
+                'http://wsdl.besim.pl/WsdlToPhp/student' => array(
+                    'wsdl' => $wsdlPath,
+                    'namespace' => 'pl\besim\wsdl\WsdlToPhp',
+                    'name' => 'student',
+                    'parent' => 'pl\besim\wsdl\WsdlToPhp2\personinfo',
+                    'properties' => array(),
+                ),
+                'http://wsdl.besim.pl/WsdlToPhp/member' => array(
+                    'wsdl' => $wsdlPath,
+                    'namespace' => 'pl\besim\wsdl\WsdlToPhp',
+                    'name' => 'member',
+                    'parent' => 'pl\besim\wsdl\WsdlToPhp2\personinfo',
+                    'properties' => array(),
+                ),
+                'http://wsdl.besim.pl/WsdlToPhp2/personinfo' => array(
+                    'wsdl' => 'schemaInclude.xsd',
+                    'namespace' => 'pl\besim\wsdl\WsdlToPhp2',
+                    'name' => 'personinfo',
+                    'properties' => array(
+                        array (
+                            'name' => 'firstname',
+                            'phpType' => 'string',
+                            'wsdlType' => 'xs:string',
+                            'restrictions' => array(),
+                            'isNull' => false,
+                        ),
+                        array (
+                            'name' => 'lastname',
+                            'phpType' => 'string',
+                            'wsdlType' => 'xs:string',
+                            'restrictions' => array(),
+                            'isNull' => false,
+                        ),
+                    ),
+                ),
+                'http://wsdl.besim.pl/WsdlToPhp3/fullpersoninfo' => array(
+                    'wsdl' => $wsdlPath,
+                    'namespace' => 'pl\besim\wsdl\WsdlToPhp3',
+                    'name' => 'fullpersoninfo',
+                    'parent' => 'pl\besim\wsdl\WsdlToPhp2\personinfo',
+                    'properties' => array(
+                        array (
+                            'name' => 'address',
+                            'phpType' => 'string',
+                            'wsdlType' => 'xs:string',
+                            'restrictions' => array(),
+                            'isNull' => false,
+                        ),
+                        array (
+                            'name' => 'city',
+                            'phpType' => 'string',
+                            'wsdlType' => 'xs:string',
+                            'restrictions' => array(),
+                            'isNull' => false,
+                        ),
+                        array (
+                            'name' => 'country',
+                            'phpType' => 'string',
+                            'wsdlType' => 'xs:string',
+                            'restrictions' => array(),
+                            'isNull' => false,
+                        ),
+                    ),
+                ),
             ),
             $parser->getWsdlTypes()
         );
@@ -115,28 +147,108 @@ class WsdlParserTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @test
+     *
+     * @see: http://www.w3schools.com/schema/schema_complex.asp
      */
-    public function getWsdlTypesCascade()
+    public function getWsdlTypesComplexTypes()
     {
-        $wsdlPath = $this->fixturesDir.'/wsdl/cascade.wsdl';
+        $wsdlPath = $this->fixturesDir.'/wsdl/complexTypes.wsdl';
         $parser = new WsdlParser($wsdlPath, SOAP_1_2);
 
         $this->assertEquals(
             array(
-                'https://test.heartlandpaymentservices.net/BillingDataManagement/v3/BillingDataManagementService/AddBlindPayment' => array(
+                'http://wsdl.besim.pl/WsdlToPhp/person' => array(
                     'wsdl' => $wsdlPath,
-                    'namespace' => 'net\heartlandpaymentservices\test\BillingDataManagement\v3\BillingDataManagementService',
-                    'name' => 'AddBlindPayment',
+                    'namespace' => 'pl\besim\wsdl\WsdlToPhp',
+                    'name' => 'person',
                     'properties' => array(
-                        array(
-                            'name' => 'AddBlindPaymentRequest',
-                            'phpType' => 'AddBlindPaymentRequest',
-                            'wsdlType' => 'q1:AddBlindPaymentRequest',
-                            'isNull' => true,
+                        array (
+                            'name' => 'firstname',
+                            'phpType' => 'string',
+                            'wsdlType' => 'xs:string',
                             'restrictions' => array(),
-                        )
-                    )
-                )
+                            'isNull' => false,
+                        ),
+                        array (
+                            'name' => 'lastname',
+                            'phpType' => 'string',
+                            'wsdlType' => 'xs:string',
+                            'restrictions' => array(),
+                            'isNull' => false,
+                        ),
+                    ),
+                ),
+                'http://wsdl.besim.pl/WsdlToPhp/employee' => array(
+                    'wsdl' => $wsdlPath,
+                    'namespace' => 'pl\besim\wsdl\WsdlToPhp',
+                    'name' => 'employee',
+                    'parent' => 'pl\besim\wsdl\WsdlToPhp\fullpersoninfo',
+                    'properties' => array(),
+                ),
+                'http://wsdl.besim.pl/WsdlToPhp/student' => array(
+                    'wsdl' => $wsdlPath,
+                    'namespace' => 'pl\besim\wsdl\WsdlToPhp',
+                    'name' => 'student',
+                    'parent' => 'pl\besim\wsdl\WsdlToPhp\personinfo',
+                    'properties' => array(),
+                ),
+                'http://wsdl.besim.pl/WsdlToPhp/member' => array(
+                    'wsdl' => $wsdlPath,
+                    'namespace' => 'pl\besim\wsdl\WsdlToPhp',
+                    'name' => 'member',
+                    'parent' => 'pl\besim\wsdl\WsdlToPhp\personinfo',
+                    'properties' => array(),
+                ),
+                'http://wsdl.besim.pl/WsdlToPhp/personinfo' => array(
+                    'wsdl' => $wsdlPath,
+                    'namespace' => 'pl\besim\wsdl\WsdlToPhp',
+                    'name' => 'personinfo',
+                    'properties' => array(
+                        array (
+                            'name' => 'firstname',
+                            'phpType' => 'string',
+                            'wsdlType' => 'xs:string',
+                            'restrictions' => array(),
+                            'isNull' => false,
+                        ),
+                        array (
+                            'name' => 'lastname',
+                            'phpType' => 'string',
+                            'wsdlType' => 'xs:string',
+                            'restrictions' => array(),
+                            'isNull' => false,
+                        ),
+                    ),
+                ),
+                'http://wsdl.besim.pl/WsdlToPhp/fullpersoninfo' => array(
+                    'wsdl' => $wsdlPath,
+                    'namespace' => 'pl\besim\wsdl\WsdlToPhp',
+                    'name' => 'fullpersoninfo',
+                    'parent' => 'pl\besim\wsdl\WsdlToPhp\personinfo',
+                    'properties' => array(
+                        array (
+                            'name' => 'address',
+                            'phpType' => 'string',
+                            'wsdlType' => 'xs:string',
+                            'restrictions' => array(),
+                            'isNull' => false,
+                        ),
+                        array (
+                            'name' => 'city',
+                            'phpType' => 'string',
+                            'wsdlType' => 'xs:string',
+                            'restrictions' => array(),
+                            'isNull' => false,
+                        ),
+                        array (
+                            'name' => 'country',
+                            'phpType' => 'string',
+                            'wsdlType' => 'xs:string',
+                            'restrictions' => array(),
+                            'isNull' => false,
+                        ),
+                    ),
+                ),
             ),
             $parser->getWsdlTypes()
         );
@@ -145,6 +257,8 @@ class WsdlParserTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @test
+     *
+     * @see: http://www.w3schools.com/schema/schema_facets.asp
      */
     public function getWsdlTypesRestrictions()
     {
@@ -153,78 +267,104 @@ class WsdlParserTest extends \PHPUnit_Framework_TestCase
 
         $this->assertEquals(
             array(
-                'http://schemas.microsoft.com/2003/10/Serialization/char' => array(
+                'http://wsdl.besim.pl/WsdlToPhp/age' => array(
                     'wsdl' => $wsdlPath,
-                    'namespace' => 'com\microsoft\schemas\2003\10\Serialization',
-                    'name' => 'char',
+                    'namespace' => 'pl\besim\wsdl\WsdlToPhp',
+                    'name' => 'age',
                     'properties' => array(
                         array(
                             'name' => '_',
                             'phpType' => 'int',
-                            'wsdlType' => 'xs:int',
-                            'restrictions' => array (),
-                            'isNull' => false
+                            'wsdlType' => 'xs:integer',
+                            'restrictions' => array (
+                                'minInclusive' => 0,
+                                'maxInclusive' => 120,
+                            ),
+                            'isNull' => false,
                         ),
                     ),
                 ),
-                'http://schemas.microsoft.com/2003/10/Serialization/guid' => array(
+                'http://wsdl.besim.pl/WsdlToPhp/car' => array(
                     'wsdl' => $wsdlPath,
-                    'namespace' => 'com\microsoft\schemas\2003\10\Serialization',
-                    'name' => 'guid',
+                    'namespace' => 'pl\besim\wsdl\WsdlToPhp',
+                    'name' => 'car',
+                    'properties' => array(
+                        array (
+                            'name' => '_',
+                            'phpType' => 'string',
+                            'wsdlType' => 'xs:string',
+                            'restrictions' => array(),
+                            'enum' => array(
+                                'Audi',
+                                'Golf',
+                                'BMW',
+                            ),
+                            'isNull' => false,
+                        ),
+                    ),
+                ),
+                'http://wsdl.besim.pl/WsdlToPhp/letter' => array(
+                    'wsdl' => $wsdlPath,
+                    'namespace' => 'pl\besim\wsdl\WsdlToPhp',
+                    'name' => 'letter',
                     'properties' => array(
                         array (
                             'name' => '_',
                             'phpType' => 'string',
                             'wsdlType' => 'xs:string',
                             'restrictions' => array(
-                                'pattern' => '[\\da-fA-F]{8}-[\\da-fA-F]{4}-[\\da-fA-F]{4}-[\\da-fA-F]{4}-[\\da-fA-F]{12}',
+                                'pattern' => '[a-z]',
                             ),
-                            'isNull' => false
-                        ),
-                    ),
-                ),
-            ),
-            $parser->getWsdlTypes()
-        );
-        $this->assertFalse($parser->hasErrors());
-    }
-
-    /**
-     * @test
-     */
-    public function getWsdlTypesResolveElements()
-    {
-        $wsdlPath = $this->fixturesDir.'/wsdl/elements.wsdl';
-        $parser = new WsdlParser($wsdlPath, SOAP_1_2);
-
-        $this->assertEquals(
-            array(
-                'http://schemas.datacontract.org/2004/07/BDMS.NewModel/Transaction' => array(
-                    'wsdl' => $wsdlPath,
-                    'namespace' => 'org\datacontract\schemas\2004\07\BDMS_NewModel',
-                    'name' => 'Transaction',
-                    'properties' => array(
-                        array(
-                            'name' => 'Amount',
-                            'phpType' => 'float',
-                            'wsdlType' => 'xs:decimal',
-                            'restrictions' => array(),
                             'isNull' => false,
                         ),
                     ),
                 ),
-                'http://schemas.datacontract.org/2004/07/BDMS.NewModel/MakePaymentRequest' => array(
+                'http://wsdl.besim.pl/WsdlToPhp/prodid' => array(
                     'wsdl' => $wsdlPath,
-                    'namespace' => 'org\datacontract\schemas\2004\07\BDMS_NewModel',
-                    'name' => 'MakePaymentRequest',
-                    'parent' => 'org\datacontract\schemas\2004\07\BDMS_NewModel\MerchantRequest',
+                    'namespace' => 'pl\besim\wsdl\WsdlToPhp',
+                    'name' => 'prodid',
                     'properties' => array(
-                        array(
-                            'name' => 'Transaction',
-                            'phpType' => 'org\datacontract\schemas\2004\07\BDMS_NewModel\Transaction',
-                            'wsdlType' => 'tns:Transaction',
-                            'restrictions' => array(),
-                            'isNull' => true,
+                        array (
+                            'name' => '_',
+                            'phpType' => 'int',
+                            'wsdlType' => 'xs:integer',
+                            'restrictions' => array(
+                                'pattern' => '[0-9][0-9][0-9][0-9][0-9]',
+                            ),
+                            'isNull' => false,
+                        ),
+                    ),
+                ),
+                'http://wsdl.besim.pl/WsdlToPhp/password1' => array(
+                    'wsdl' => $wsdlPath,
+                    'namespace' => 'pl\besim\wsdl\WsdlToPhp',
+                    'name' => 'password1',
+                    'properties' => array(
+                        array (
+                            'name' => '_',
+                            'phpType' => 'string',
+                            'wsdlType' => 'xs:string',
+                            'restrictions' => array(
+                                'length' => 8,
+                            ),
+                            'isNull' => false,
+                        ),
+                    ),
+                ),
+                'http://wsdl.besim.pl/WsdlToPhp/password2' => array(
+                    'wsdl' => $wsdlPath,
+                    'namespace' => 'pl\besim\wsdl\WsdlToPhp',
+                    'name' => 'password2',
+                    'properties' => array(
+                        array (
+                            'name' => '_',
+                            'phpType' => 'string',
+                            'wsdlType' => 'xs:string',
+                            'restrictions' => array(
+                                'minLength' => 5,
+                                'maxLength' => 8,
+                            ),
+                            'isNull' => false,
                         ),
                     ),
                 ),
@@ -237,7 +377,7 @@ class WsdlParserTest extends \PHPUnit_Framework_TestCase
     /**
      * @test
      */
-    public function parseWsdlOperations()
+    public function getWsdlOperations()
     {
         $wsdlPath = $this->fixturesDir.'/wsdl/operations.wsdl';
         $parser = new WsdlParser($wsdlPath, SOAP_1_2);
