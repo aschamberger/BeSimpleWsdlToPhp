@@ -48,21 +48,6 @@
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
-            <xs:element name="persons">
-                <xs:complexType>
-                    <xs:sequence>
-                        <xs:element name="person" maxOccurs="unbounded">
-                            <xs:complexType>
-                                <xs:sequence>
-                                    <xs:element name="full_name" type="xs:string" />
-                                    <xs:element name="child_name" type="xs:string"
-                                        minOccurs="0" maxOccurs="5" />
-                                </xs:sequence>
-                            </xs:complexType>
-                        </xs:element>
-                    </xs:sequence>
-                </xs:complexType>
-            </xs:element>
         </xs:schema>
     </wsdl:types>
 </wsdl:definitions>

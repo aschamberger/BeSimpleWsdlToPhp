@@ -591,6 +591,17 @@ class WsdlParser
      */
     private function resolveElements($type, &$wsdlType, $schema)
     {
+        $complexTypes = $type->getElementsByTagNameNS(Helper::NS_XML_SCHEMA, 'complexType');
+
+        if ($complexTypes->length > 1) {
+            $typeName = $type->getAttribute('name');
+            $this->addError(
+                "Nested complexType element declaration in XML schema for type '{$typeName}' not supported.",
+                $type->getLineNo()
+            );
+            return;
+        }
+
         $elements = $type->getElementsByTagNameNS(Helper::NS_XML_SCHEMA, 'element');
 
         if ($elements->length > 0) {

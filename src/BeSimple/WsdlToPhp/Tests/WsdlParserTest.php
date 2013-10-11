@@ -13,6 +13,8 @@
 
 namespace BeSimple\WsdlToPhp\Tests;
 
+use BeSimple\WsdlToPhp\WsdlParserError;
+
 use BeSimple\WsdlToPhp\WsdlParser;
 
 class WsdlParserTest extends \PHPUnit_Framework_TestCase
@@ -34,6 +36,28 @@ class WsdlParserTest extends \PHPUnit_Framework_TestCase
             }
         );
     }
+
+    /**
+     * @test
+     *
+     * @see: http://www.w3schools.com/schema/schema_complex_indicators.asp
+     */
+    public function getWsdlTypesComplexTypeIndicatorsNestedTypes()
+    {
+        $wsdlPath = $this->fixturesDir.'/wsdl/complexTypeIndicatorsNestedTypes.wsdl';
+        $parser = new WsdlParser($wsdlPath, SOAP_1_2);
+        $parser->getWsdlTypes();
+
+        $this->assertTrue($parser->hasErrors());
+
+        $message = "Nested complexType element declaration in XML schema for type 'persons' not supported.";
+        $line = 9;
+        $error = new WsdlParserError($message, $wsdlPath, $line);
+        $errors = $parser->getErrors();
+
+        $this->assertEquals($error, $errors[0]);
+    }
+
 
     /**
      * @test
@@ -139,41 +163,6 @@ class WsdlParserTest extends \PHPUnit_Framework_TestCase
                         array (
                             'name' => 'full_name',
                             'phpType' => 'string',
-                            'wsdlType' => 'xs:string',
-                            'restrictions' => array(),
-                            'isNull' => false,
-                        ),
-                        array (
-                            'name' => 'child_name',
-                            'phpType' => 'array(string)',
-                            'wsdlType' => 'xs:string',
-                            'restrictions' => array(),
-                            'isNull' => false,
-                        ),
-                    ),
-                ),
-                'http://wsdl.besim.pl/WsdlToPhp/persons' => array(
-                    'wsdl' => $wsdlPath,
-                    'namespace' => 'pl\besim\wsdl\WsdlToPhp',
-                    'name' => 'persons',
-                    'properties' => array(
-                        array (
-                            'name' => 'person',
-                            'phpType' => 'array(pl\besim\wsdl\WsdlToPhp\person)',
-                            'wsdlType' => 'xs:string',
-                            'restrictions' => array(),
-                            'isNull' => false,
-                        ),
-                    ),
-                ),
-                'http://wsdl.besim.pl/WsdlToPhp/person' => array(
-                    'wsdl' => $wsdlPath,
-                    'namespace' => 'pl\besim\wsdl\WsdlToPhp',
-                    'name' => 'person',
-                    'properties' => array(
-                        array (
-                            'name' => 'full_name',
-                            'phpType' => 'array(string)',
                             'wsdlType' => 'xs:string',
                             'restrictions' => array(),
                             'isNull' => false,
