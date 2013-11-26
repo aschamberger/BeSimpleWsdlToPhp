@@ -15,6 +15,9 @@ use \SoapClient as BaseSoapClient;
 class Client extends BaseSoapClient
 {
     protected $classMap = array(
+        'Customer' => 'My\\Webservices\\Customer',
+        'OnlineCustomer' => 'My\\Webservices\\OnlineCustomer',
+        'Car' => 'My\\Webservices\\Car',
     );
 
     /**

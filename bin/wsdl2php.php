@@ -105,6 +105,12 @@ $opts = array(
         'default'  => 'public',
         'doc'      => 'Access level to properties. Default value: public.',
     ),
+    'wsdl2java_style' => array(
+        'shortKey' => null,
+        'access'   => 'no_values',
+        'default'  => true,
+        'doc'      => 'Disable generation of wsdl2java style namespaces. It does not have parameters.',
+    ),
 );
 
 $shortOptions = '';
@@ -164,7 +170,7 @@ if (empty($options['wsdl'])) {
 }
 
 echo "Starts\n";
-$parser = new WsdlParser($options['wsdl'], $options['soap_version']);
+$parser = new WsdlParser($options['wsdl'], $options['soap_version'], $options);
 $wsdlTypes = $parser->getWsdlTypes();
 if ($parser->hasErrors()) {
     echo "Errors:\n";
@@ -183,7 +189,7 @@ if (!empty($wsdlTypes)) {
         }
         $file = $generator->writeClass($type, $options['output_dir']);
         echo 'written file ' . $file . PHP_EOL;
-        $classmapTypes[$type['name']] = '\\' . $type['namespace'] .'\\' . $type['name'];
+        $classmapTypes[$type['name']] = $type['namespace'] .'\\' . $type['name'];
     }
 } else {
     echo "No types found\n";

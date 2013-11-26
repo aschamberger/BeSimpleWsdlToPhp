@@ -1,0 +1,39 @@
+<?xml version = "1.0" encoding = "utf-8"?>
+<wsdl:definitions name="BeSimpleWsdlToPhp"
+    targetNamespace="http://wsdl.besim.pl/WsdlToPhp" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
+    xmlns:tns="http://wsdl.besim.pl/WsdlToPhp">
+    <wsdl:types>
+        <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+            xmlns:tns="http://wsdl.besim.pl/WsdlToPhp" elementFormDefault="qualified"
+            targetNamespace="http://wsdl.besim.pl/WsdlToPhp">
+            <xs:element name="person">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element name="firstname" type="xs:string" />
+                        <xs:element name="lastname" type="xs:string" />
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="employee" type="tns:fullpersoninfo" />
+            <xs:element name="student" type="tns:personinfo" />
+            <xs:element name="member" type="tns:personinfo" />
+            <xs:complexType name="personinfo">
+                <xs:sequence>
+                    <xs:element name="firstname" type="xs:string" />
+                    <xs:element name="lastname" type="xs:string" />
+                </xs:sequence>
+            </xs:complexType>
+            <xs:complexType name="fullpersoninfo">
+                <xs:complexContent>
+                    <xs:extension base="tns:personinfo">
+                        <xs:sequence>
+                            <xs:element name="address" type="xs:string" />
+                            <xs:element name="city" type="xs:string" />
+                            <xs:element name="country" type="xs:string" />
+                        </xs:sequence>
+                    </xs:extension>
+                </xs:complexContent>
+            </xs:complexType>
+        </xs:schema>
+    </wsdl:types>
+</wsdl:definitions>
