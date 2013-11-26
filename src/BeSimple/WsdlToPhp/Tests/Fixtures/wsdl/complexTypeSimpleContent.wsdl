@@ -1,0 +1,28 @@
+<?xml version = "1.0" encoding = "utf-8"?>
+<wsdl:definitions name="BeSimpleWsdlToPhp"
+    targetNamespace="http://wsdl.besim.pl/WsdlToPhp" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
+    xmlns:tns="http://wsdl.besim.pl/WsdlToPhp">
+    <wsdl:types>
+        <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+            xmlns:tns="http://wsdl.besim.pl/WsdlToPhp" elementFormDefault="qualified"
+            targetNamespace="http://wsdl.besim.pl/WsdlToPhp">
+            <xs:element name="shoesizeInline">
+                <xs:complexType>
+                    <xs:simpleContent>
+                        <xs:extension base="xs:integer">
+                            <xs:attribute name="country" type="xs:string" />
+                        </xs:extension>
+                    </xs:simpleContent>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="shoesizeReference" type="tns:shoetype" />
+            <xs:complexType name="shoetype">
+                <xs:simpleContent>
+                    <xs:extension base="xs:integer">
+                        <xs:attribute name="country" type="xs:string" />
+                    </xs:extension>
+                </xs:simpleContent>
+            </xs:complexType>
+        </xs:schema>
+    </wsdl:types>
+</wsdl:definitions>

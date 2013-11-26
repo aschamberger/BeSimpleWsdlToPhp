@@ -1,0 +1,45 @@
+<?xml version = "1.0" encoding = "utf-8"?>
+<wsdl:definitions name="BeSimpleWsdlToPhp"
+    targetNamespace="http://wsdl.besim.pl/WsdlToPhp" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
+    xmlns:tns="http://wsdl.besim.pl/WsdlToPhp">
+    <wsdl:types>
+        <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+            xmlns:tns="http://wsdl.besim.pl/WsdlToPhp" elementFormDefault="qualified"
+            targetNamespace="http://wsdl.besim.pl/WsdlToPhp">
+            <xs:complexType name="Address">
+                <xs:sequence>
+                    <xs:element name="name" type="xs:string" />
+                    <xs:element name="street" type="xs:string" />
+                    <xs:element name="city" type="xs:string" />
+                </xs:sequence>
+            </xs:complexType>
+            <xs:complexType name="USAddress">
+                <xs:complexContent>
+                    <xs:extension base="tns:Address">
+                        <xs:sequence>
+                            <xs:element name="state" type="tns:USState" />
+                            <xs:element name="zip" type="xs:positiveInteger" />
+                        </xs:sequence>
+                    </xs:extension>
+                </xs:complexContent>
+            </xs:complexType>
+            <xs:complexType name="DEAddress">
+                <xs:complexContent>
+                    <xs:extension base="tns:Address">
+                        <xs:sequence>
+                            <xs:element name="postcode" type="xs:positiveInteger" />
+                        </xs:sequence>
+                    </xs:extension>
+                </xs:complexContent>
+            </xs:complexType>
+            <xs:simpleType name="USState">
+                <xs:restriction base="xs:string">
+                    <xs:enumeration value="AK" />
+                    <xs:enumeration value="AL" />
+                    <xs:enumeration value="AR" />
+                    <!-- and so on ... -->
+                </xs:restriction>
+            </xs:simpleType>
+        </xs:schema>
+    </wsdl:types>
+</wsdl:definitions>

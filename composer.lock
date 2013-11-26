@@ -3,7 +3,7 @@
         "This file locks the dependencies of your project to a known state",
         "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file"
     ],
-    "hash": "9c78b8993650f646ba5096d24e5be0e7",
+    "hash": "e8591844186210ceb9e8272e5d804d50",
     "packages": [
         {
             "name": "ass/xmlsecurity",
@@ -11,19 +11,28 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/aschamberger/XmlSecurity.git",
-                "reference": "ce8c5e20fae33b92173be0ec37a572de5cb7bd16"
+                "reference": "c4246b1a6f5e42261b4886b306b1ae2fefea976f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/aschamberger/XmlSecurity/zipball/ce8c5e20fae33b92173be0ec37a572de5cb7bd16",
-                "reference": "ce8c5e20fae33b92173be0ec37a572de5cb7bd16",
+                "url": "https://api.github.com/repos/aschamberger/XmlSecurity/zipball/c4246b1a6f5e42261b4886b306b1ae2fefea976f",
+                "reference": "c4246b1a6f5e42261b4886b306b1ae2fefea976f",
                 "shasum": ""
             },
             "require": {
+                "ext-openssl": "*",
                 "lib-openssl": ">=0.9.0",
                 "php": ">=5.3.0"
             },
+            "suggest": {
+                "ext-mcrypt": "*"
+            },
             "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "1.0.x-dev"
+                }
+            },
             "autoload": {
                 "psr-0": {
                     "ass\\XmlSecurity": "src/"
@@ -51,7 +60,7 @@
                 "signature",
                 "xml"
             ],
-            "time": "2013-07-18 19:52:20"
+            "time": "2013-11-24 10:03:58"
         },
         {
             "name": "besimple/soap-common",
@@ -59,11 +68,17 @@
             "target-dir": "BeSimple/SoapCommon",
             "source": {
                 "type": "git",
-                "url": "git@github.com:BeSimple/BeSimpleSoapCommon.git",
-                "reference": "b130e8b485017af20ae7aa78c18f058c62092ca1"
+                "url": "https://github.com/BeSimple/BeSimpleSoapCommon.git",
+                "reference": "11486d1a06c4d1610a4c9580b1999b4448b6c29f"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/BeSimple/BeSimpleSoapCommon/zipball/11486d1a06c4d1610a4c9580b1999b4448b6c29f",
+                "reference": "11486d1a06c4d1610a4c9580b1999b4448b6c29f",
+                "shasum": ""
             },
             "require": {
-                "ass/xmlsecurity": "dev-master",
+                "ass/xmlsecurity": "~1.0",
                 "ext-soap": "*",
                 "php": ">=5.3.0"
             },
@@ -74,7 +89,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "0.1-dev"
+                    "dev-master": "0.2-dev"
                 }
             },
             "autoload": {
@@ -82,21 +97,23 @@
                     "BeSimple\\SoapCommon": ""
                 }
             },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
             "authors": [
                 {
                     "name": "Francis Besset",
-                    "email": "francis.besset@gmail.com"
-                },
-                {
-                    "name": "Christian Kerl",
-                    "email": "christian-kerl@web.de"
+                    "email": "francis.besset@gmail.com",
+                    "homepage": "http://www.apercite.fr"
                 },
                 {
                     "name": "Andreas Schamberger",
                     "email": "mail@andreass.net"
+                },
+                {
+                    "name": "Christian Kerl",
+                    "email": "christian-kerl@web.de"
                 }
             ],
             "description": "Build and consume SOAP Common based web services",
@@ -105,7 +122,7 @@
                 "soap",
                 "soap-common"
             ],
-            "time": "2013-07-24 21:40:21"
+            "time": "2013-10-30 16:00:44"
         }
     ],
     "packages-dev": [
@@ -114,10 +131,9 @@
     "aliases": [
 
     ],
-    "minimum-stability": "stable",
+    "minimum-stability": "dev",
     "stability-flags": {
-        "besimple/soap-common": 20,
-        "ass/xmlsecurity": 20
+        "besimple/soap-common": 20
     },
     "platform": {
         "php": ">=5.3.0"

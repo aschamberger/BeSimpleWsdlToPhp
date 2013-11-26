@@ -64,6 +64,7 @@ class Customer
     public function setName($name)
     {
         $this->name = $name;
+
         return $this;
     }
 
@@ -83,6 +84,7 @@ class Customer
     public function setFirstname($firstname)
     {
         $this->firstname = $firstname;
+
         return $this;
     }
 
@@ -102,6 +104,7 @@ class Customer
     public function setCountry($country)
     {
         $this->country = $country;
+
         return $this;
     }
 

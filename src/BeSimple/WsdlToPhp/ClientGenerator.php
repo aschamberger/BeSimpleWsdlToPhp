@@ -96,8 +96,10 @@ class ClientGenerator extends AbstractClassGenerator
     {
         $lines = array();
         $lines[] = $this->spaces . 'protected $classMap = array(';
-        if (!empty($data['types'])) foreach ($data['types'] as $name => $type) {
-            $lines[] = str_repeat($this->spaces, 2) . "'" . $name . "' => '" . $type . "',";
+        if (!empty($data['types'])) {
+            foreach ($data['types'] as $name => $type) {
+                $lines[] = str_repeat($this->spaces, 2) . "'" . $name . "' => '" . str_replace('\\', '\\\\', $type) . "',";
+            }
         }
         $lines[] = $this->spaces . ');';
         $lines[] = '';
@@ -123,7 +125,6 @@ class ClientGenerator extends AbstractClassGenerator
 
         return implode("\n", $lines);
     }
-
 
     /**
      * Generate operation.
@@ -158,7 +159,7 @@ class ClientGenerator extends AbstractClassGenerator
         if (isset($operation['wrapParameters'])) {
 
             if ($this->getOption('generate_constructor')) {
-                throw new Exception('It does not implemented yet');
+                throw new \RuntimeException('Not implemented yet');
             } else {
                 $lines[] = $this->spaces . $this->spaces . '$parameters = new ' . $operation['wrapParameters'] . '();';
                 if ('public' == $this->getOption('access')) {

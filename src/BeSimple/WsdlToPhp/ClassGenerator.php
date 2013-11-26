@@ -122,6 +122,14 @@ class ClassGenerator extends AbstractClassGenerator
         return implode("\n", $lines);
     }
 
+    /**
+     * Get properties.
+     *
+     * @param array   $properties List of properties
+     * @param boolean $isRequired Required property
+     *
+     * @return array
+     */
     protected function getProperties($properties, $isRequired)
     {
         foreach ($properties as $key => $val) {
@@ -129,6 +137,7 @@ class ClassGenerator extends AbstractClassGenerator
                 unset($properties[$key]);
             }
         }
+
         return $properties;
     }
 
@@ -154,15 +163,29 @@ class ClassGenerator extends AbstractClassGenerator
         $reqArgs = $this->getProperties($data['properties'], true, $data);
         $optArgs = $this->getProperties($data['properties'], false, $data);
         $ops = array();
+        $params = array();
+        $maxTypeLength = 0;
         foreach ($reqArgs + $optArgs as $property) {
-            if (empty($property['name'])) continue;
+            if (empty($property['name'])) {
+                continue;
+            }
+            if (strlen($property['phpType']) > $maxTypeLength) {
+                $maxTypeLength = strlen($property['phpType']);
+            }
             $localName = lcfirst($property['name']);
-            $lines[] = $this->spaces . " * @param {$property['phpType']} \${$localName}";
+            $params[] = array(
+                'type' => $property['phpType'],
+                'name' => $localName,
+            );
             $ops[] = $this->generateFunctionArguments(
                 array($localName => $property['phpType']),
                 !$property['isNull']
             );
 
+        }
+        foreach ($params as $param) {
+            $param['type'] = str_pad($param['type'], $maxTypeLength, " ");
+            $lines[] = $this->spaces . " * @param {$param['type']} \${$param['name']}";
         }
         $lines[] = $this->spaces . ' */';
         $lines[] = $this->spaces . 'public function __construct(' . implode(', ', $ops) . ')';
@@ -185,7 +208,9 @@ class ClassGenerator extends AbstractClassGenerator
      */
     protected function generateProperty($property)
     {
-        if (empty($property['name'])) return '';
+        if (empty($property['name'])) {
+            return '';
+        }
 
         $lines = array();
         $lines[] = $this->spaces . '/**';
@@ -222,7 +247,7 @@ class ClassGenerator extends AbstractClassGenerator
     /**
      * Generate getters and setters
      *
-     * @param array(string=>mixed) $data Data array
+     * @param array(string=>mixed)  $data     Data array
      * @param array(string=>string) $property Property information
      *
      * @return string
@@ -245,6 +270,7 @@ class ClassGenerator extends AbstractClassGenerator
             $this->generateFunctionArguments(array($localName => $property['phpType']), true, $data)  . ')';
         $lines[] = $this->spaces . '{';
         $lines[] = $this->spaces . $this->spaces . '$this->' . $property['name'] . ' = $' . $localName . ';';
+        $lines[] = '';
         $lines[] = $this->spaces . $this->spaces . 'return $this;';
         $lines[] = $this->spaces . '}';
         $lines[] = '';
@@ -261,6 +287,7 @@ class ClassGenerator extends AbstractClassGenerator
             $lines[] = $this->spaces . $this->spaces . $this->spaces . '$this->' . $property['name'] . ' = new ' .
                 $property['phpType'] . '();';
             $lines[] = $this->spaces . $this->spaces . '}';
+            $lines[] = '';
         }
         $lines[] = $this->spaces . $this->spaces . 'return $this->' . $property['name'] . ';';
         $lines[] = $this->spaces . '}';

@@ -1,0 +1,61 @@
+<?xml version = "1.0" encoding = "utf-8"?>
+<wsdl:definitions name="BeSimpleWsdlToPhp"
+    targetNamespace="http://wsdl.besim.pl/WsdlToPhp" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
+    xmlns:tns="http://wsdl.besim.pl/WsdlToPhp">
+    <wsdl:types>
+        <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+            xmlns:tns="http://wsdl.besim.pl/WsdlToPhp" elementFormDefault="qualified"
+            targetNamespace="http://wsdl.besim.pl/WsdlToPhp">
+            <xs:element name="TestOperationOne">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element name="TestOperationOneRequest" type="xs:string" />
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="TestOperationOneResponse">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element name="TestOperationOneResult" type="xs:string" />
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="TestOperationTwo">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element name="TestOperationTwoRequest" type="xs:string" />
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="TestOperationTwoResponse">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element name="TestOperationOneResult" type="xs:string" />
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+        </xs:schema>
+    </wsdl:types>
+    <wsdl:message name="TestService_TestOperationOne_InputMessage">
+        <wsdl:part name="parameters" element="tns:TestOperationOne" />
+    </wsdl:message>
+    <wsdl:message name="TestService_TestOperationOne_OutputMessage">
+        <wsdl:part name="parameters" element="tns:TestOperationOneResponse" />
+    </wsdl:message>
+    <wsdl:message name="TestService_TestOperationTwo_InputMessage">
+        <wsdl:part name="parameters" element="tns:TestOperationTwo" />
+    </wsdl:message>
+    <wsdl:message name="TestService_TestOperationTwo_OutputMessage">
+        <wsdl:part name="parameters" element="tns:TestOperationTwoResponse" />
+    </wsdl:message>
+    <wsdl:portType name="TestService">
+        <wsdl:operation name="TestOperationOne">
+            <wsdl:input message="tns:TestService_TestOperationOne_InputMessage" />
+            <wsdl:output message="tns:TestService_TestOperationOne_OutputMessage" />
+        </wsdl:operation>
+        <wsdl:operation name="TestOperationTwo">
+            <wsdl:input message="tns:TestService_TestOperationTwo_InputMessage" />
+            <wsdl:output message="tns:TestService_TestOperationTwo_OutputMessage" />
+        </wsdl:operation>
+    </wsdl:portType>
+</wsdl:definitions>

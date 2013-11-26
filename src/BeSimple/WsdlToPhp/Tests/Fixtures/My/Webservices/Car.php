@@ -28,7 +28,7 @@ class Car
      * - SchemaType: Brand
      * - maxLength: 20
      *
-     * @var Brand
+     * @var string
      */
     protected $brand = null;
 
@@ -63,9 +63,9 @@ class Car
      *
      * @param string $model
      * @param string $color
-     * @param Brand $brand
+     * @param string $brand
      */
-    public function __construct($model, $color, Brand $brand = null)
+    public function __construct($model, $color, $brand = null)
     {
         $this->model = $model;
         $this->color = $color;
@@ -73,24 +73,22 @@ class Car
     }
 
     /**
-     * @param Brand $brand
+     * @param string $brand
      *
      * @return Car
      */
-    public function setBrand(Brand $brand)
+    public function setBrand($brand)
     {
         $this->brand = $brand;
+
         return $this;
     }
 
     /**
-     * @return Brand
+     * @return string
      */
     public function getBrand()
     {
-        if (null === $this->brand) {
-            $this->brand = new Brand();
-        }
         return $this->brand;
     }
 
@@ -102,6 +100,7 @@ class Car
     public function setModel($model)
     {
         $this->model = $model;
+
         return $this;
     }
 
@@ -121,6 +120,7 @@ class Car
     public function setColor($color)
     {
         $this->color = $color;
+
         return $this;
     }
 

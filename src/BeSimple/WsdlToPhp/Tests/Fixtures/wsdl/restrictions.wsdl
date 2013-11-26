@@ -1,0 +1,57 @@
+<?xml version = "1.0" encoding = "utf-8"?>
+<wsdl:definitions name="BeSimpleWsdlToPhp"
+    targetNamespace="http://wsdl.besim.pl/WsdlToPhp" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
+    xmlns:tns="http://wsdl.besim.pl/WsdlToPhp">
+    <wsdl:types>
+        <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+            xmlns:tns="http://wsdl.besim.pl/WsdlToPhp" elementFormDefault="qualified"
+            targetNamespace="http://wsdl.besim.pl/WsdlToPhp">
+            <xs:element name="age">
+                <xs:simpleType>
+                    <xs:restriction base="xs:integer">
+                        <xs:minInclusive value="0" />
+                        <xs:maxInclusive value="120" />
+                    </xs:restriction>
+                </xs:simpleType>
+            </xs:element>
+            <xs:element name="car">
+                <xs:simpleType>
+                    <xs:restriction base="xs:string">
+                        <xs:enumeration value="Audi" />
+                        <xs:enumeration value="Golf" />
+                        <xs:enumeration value="BMW" />
+                    </xs:restriction>
+                </xs:simpleType>
+            </xs:element>
+            <xs:element name="letter">
+                <xs:simpleType>
+                    <xs:restriction base="xs:string">
+                        <xs:pattern value="[a-z]" />
+                    </xs:restriction>
+                </xs:simpleType>
+            </xs:element>
+            <xs:element name="prodid">
+                <xs:simpleType>
+                    <xs:restriction base="xs:integer">
+                        <xs:pattern value="[0-9][0-9][0-9][0-9][0-9]" />
+                    </xs:restriction>
+                </xs:simpleType>
+            </xs:element>
+            <xs:element name="password1">
+                <xs:simpleType>
+                    <xs:restriction base="xs:string">
+                        <xs:length value="8" />
+                    </xs:restriction>
+                </xs:simpleType>
+            </xs:element>
+            <xs:element name="password2">
+                <xs:simpleType>
+                    <xs:restriction base="xs:string">
+                        <xs:minLength value="5" />
+                        <xs:maxLength value="8" />
+                    </xs:restriction>
+                </xs:simpleType>
+            </xs:element>
+        </xs:schema>
+    </wsdl:types>
+</wsdl:definitions>

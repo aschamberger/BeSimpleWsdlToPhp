@@ -1,0 +1,41 @@
+<?xml version = "1.0" encoding = "utf-8"?>
+<wsdl:definitions name="BeSimpleWsdlToPhp"
+    targetNamespace="http://wsdl.besim.pl/WsdlToPhp" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
+    xmlns:tns="http://wsdl.besim.pl/WsdlToPhp">
+    <wsdl:types>
+        <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+            xmlns:tns="http://wsdl.besim.pl/WsdlToPhp" elementFormDefault="qualified"
+            targetNamespace="http://wsdl.besim.pl/WsdlToPhp" xmlns:pi="http://wsdl.besim.pl/WsdlToPhp2"
+            xmlns:pif="http://wsdl.besim.pl/WsdlToPhp3">
+            <xs:import namespace="http://wsdl.besim.pl/WsdlToPhp2" />
+            <xs:import schemaLocation="schemaInclude.xsd" namespace="http://wsdl.besim.pl/WsdlToPhp3" />
+            <xs:element name="person">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element name="firstname" type="xs:string" />
+                        <xs:element name="lastname" type="xs:string" />
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="employee" type="pif:fullpersoninfo" />
+            <xs:element name="student" type="pi:personinfo" />
+            <xs:element name="member" type="pi:personinfo" />
+        </xs:schema>
+        <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+            xmlns:tns="http://wsdl.besim.pl/WsdlToPhp3" elementFormDefault="qualified"
+            targetNamespace="http://wsdl.besim.pl/WsdlToPhp3" xmlns:pi="http://wsdl.besim.pl/WsdlToPhp2">
+            <xs:import namespace="http://wsdl.besim.pl/WsdlToPhp2" />
+            <xs:complexType name="fullpersoninfo">
+                <xs:complexContent>
+                    <xs:extension base="pi:personinfo">
+                        <xs:sequence>
+                            <xs:element name="address" type="xs:string" />
+                            <xs:element name="city" type="xs:string" />
+                            <xs:element name="country" type="xs:string" />
+                        </xs:sequence>
+                    </xs:extension>
+                </xs:complexContent>
+            </xs:complexType>
+        </xs:schema>
+    </wsdl:types>
+</wsdl:definitions>
