@@ -83,6 +83,7 @@ class WsdlParser
      */
     protected $options = array(
         'wsdl2java_style' => true,
+        'empty_parameter_name' => '_',
     );
 
     /**
@@ -235,11 +236,11 @@ class WsdlParser
         $outputMessage = $operation->getElementsByTagName('output')->item(0)->getAttribute('message');
 
         list($prefix, $inputType) = $this->getTypeName($this->resolveMessageType($inputMessage));
-        $tns = rtrim($this->domDocument->lookupNamespaceURI($prefix), '/').'/';
+        $tns = $this->trimTypeNs($this->domDocument->lookupNamespaceURI($prefix));
         $inputTypeNS = $tns.$inputType;
 
         list($prefix, $outputType) = $this->getTypeName($this->resolveMessageType($outputMessage));
-        $tns = rtrim($this->domDocument->lookupNamespaceURI($prefix), '/').'/';
+        $tns = $this->trimTypeNs($this->domDocument->lookupNamespaceURI($prefix));
         $outputTypeNS = $tns.$outputType;
 
         $this->getWsdlTypes();
@@ -339,7 +340,7 @@ class WsdlParser
 
                 $wsdlType = null;
                 $attrName = $element->getAttribute('name');
-                $wsdlTypeName = rtrim($targetNamespace, '/').'/'.$attrName;
+                $wsdlTypeName = $this->trimTypeNs($targetNamespace).$attrName;
 
                 // element can be declared directly
                 if ($element->hasChildNodes()) {
@@ -372,7 +373,7 @@ class WsdlParser
             /** @var DOMElement $element */
             foreach ($complexTypes as $complexType) {
                 $wsdlType = null;
-                $wsdlTypeName = rtrim($targetNamespace, '/').'/'.$complexType->getAttribute('name');
+                $wsdlTypeName = $this->trimTypeNs($targetNamespace).$complexType->getAttribute('name');
                 $wsdlType = $this->parseType(
                     $complexType,
                     $schema,
@@ -385,7 +386,7 @@ class WsdlParser
             /** @var DOMElement $element */
             foreach ($simpleTypes as $simpleType) {
                 $wsdlType = null;
-                $wsdlTypeName = rtrim($targetNamespace, '/').'/'.$simpleType->getAttribute('name');
+                $wsdlTypeName = $this->trimTypeNs($targetNamespace).$simpleType->getAttribute('name');
                 $wsdlType = $this->parseType(
                     $simpleType,
                     $schema,
@@ -457,7 +458,7 @@ class WsdlParser
         }
 
         if (null !== $simpleType) {
-            $property = array('name' => '_');
+            $property = array('name' => $this->options['empty_parameter_name']);
             $this->resolveRestrictions($simpleType, $property);
             $property['phpType'] = $this->getPhpTypeForSchemaType($property['wsdlType'], $schema);
             $property['isNull'] = (bool) $type->getAttribute('nillable');
@@ -467,7 +468,12 @@ class WsdlParser
             if (0 < $simpleContent->length) {
                 $extension = $type->getElementsByTagNameNS(Helper::NS_XML_SCHEMA, 'extension')->item(0);
                 if (null !== $extension) {
-                    $property = $this->makeProperty('_', $extension, 'base', $schema);
+                    $property = $this->makeProperty(
+                        $this->options['empty_parameter_name'],
+                        $extension,
+                        'base',
+                        $schema
+                    );
                     $wsdlType['properties'] = array($property);
                 }
 
@@ -702,6 +708,23 @@ class WsdlParser
         $namespace = rtrim($namespace, '\\');
 
         return $namespace;
+    }
+
+    /**
+     * Trim namespace (url)
+     *
+     * @param string $ns
+     *
+     * @return string
+     */
+    private function trimTypeNs($ns)
+    {
+        // Disable url to namespace conversion by --wsdl2java_style parameter
+        if (!$this->options['wsdl2java_style']) {
+            return '';
+        }
+
+        return rtrim($ns, '/') . '/';
     }
 
     /**

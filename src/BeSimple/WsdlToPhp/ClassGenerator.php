@@ -279,6 +279,7 @@ class ClassGenerator extends AbstractClassGenerator
         $lines[] = $this->spaces . ' */';
         $lines[] = $this->spaces . 'public function get' . ucfirst($property['name']) . '()';
         $lines[] = $this->spaces . '{';
+
         if (!in_array($property['phpType'], self::$phpTypes) &&
             !empty($this->wsdlTypes[$property['phpType']]['properties'][0]['name']) &&
             $this->getOption('instance_on_getter')

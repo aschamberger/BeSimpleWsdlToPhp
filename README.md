@@ -37,5 +37,5 @@ php /usr/local/bin/composer.phar install
 # Run
 
 ```sh
-wsdl2php -w"myservice.wsdl"
+php bin/wsdl2php.php -w"myservice.wsdl"
 ```

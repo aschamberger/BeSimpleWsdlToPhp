@@ -298,7 +298,8 @@ abstract class AbstractClassGenerator
     {
         $parameters = array();
         foreach ($args as $name => $type) {
-            if (!in_array($type, self::$phpTypes) &&
+            if ('array' == $type ||
+                !in_array($type, self::$phpTypes) &&
                 (empty($this->wsdlTypes) || !empty($this->wsdlTypes[$type]['properties'][0]['name']))
             ) {
                 $arg = ($type . ' $' . $name);
