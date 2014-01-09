@@ -15,7 +15,7 @@ use BeSimple\WsdlToPhp\WsdlParser;
 use BeSimple\WsdlToPhp\ClassGenerator;
 use BeSimple\WsdlToPhp\ClientGenerator;
 
-include __DIR__ . '/../vendor/autoload.php';
+include 'vendor/autoload.php';
 
 $opts = array(
     'wsdl' => array(
@@ -35,12 +35,6 @@ $opts = array(
         'access'   => 'optional',
         'default'  => false,
         'doc'      => 'Parent of Client class. Default value: \\SoapClient',
-    ),
-    'parent' => array(
-        'shortKey' => null,
-        'access' => 'optional',
-        'default' => false,
-        'doc' => 'Parent of Client class. Default value: \\SoapClient',
     ),
     'namespace' => array(
         'shortKey' => 'n',
@@ -71,6 +65,12 @@ $opts = array(
         'access'   => 'optional',
         'default'  => 4,
         'doc'      => 'How much indent would be used in generated files. Default value: 4',
+    ),
+    'empty_parameter_name' => array(
+        'shortKey' => null,
+        'access'   => 'optional',
+        'default'  => '_',
+        'doc'      => 'Default name of parameter without provided name. Default value: _',
     ),
     'overwrite' => array(
         'shortKey' => null,
@@ -166,7 +166,11 @@ foreach ($opts as $key => $vals) {
 $options = array_merge($defaultOptions, $options);
 
 if (empty($options['wsdl'])) {
-    die('Path to WSDL file is required!' . PHP_EOL . 'All parameters:' . PHP_EOL . implode(PHP_EOL, $outputArr) . PHP_EOL);
+    die(
+        'Path to WSDL file is required!' . PHP_EOL .
+        'All parameters:' . PHP_EOL .
+        implode(PHP_EOL, $outputArr) . PHP_EOL
+    );
 }
 
 echo "Starts\n";
