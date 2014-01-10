@@ -30,8 +30,7 @@ class ClassGeneratorTest extends \PHPUnit_Framework_TestCase
     public function testGenerator()
     {
         $generator = new ClassGenerator(
-            array('access' => 'protected', 'generate_constructor' => true, 'instance_on_getter' => true),
-            array('Brand' => array('properties' => array(array('name' => 'someVar'))))
+            array('access' => 'protected', 'generate_constructor' => true)
         );
         $targetDir = sys_get_temp_dir();
 
@@ -61,5 +60,87 @@ class ClassGeneratorTest extends \PHPUnit_Framework_TestCase
         $target = $generator->writeClass($this->testData['empty'], $targetDir);
         $file = $this->fixturesDir.'/My/Webservices/EmptyClass.php';
         $this->assertFileEquals($file, $target);
+    }
+
+    public function testGeneratorEnum()
+    {
+        $generator = new ClassGenerator(
+            array('access' => 'protected', 'generate_constructor' => true)
+        );
+        $targetDir = sys_get_temp_dir();
+
+        $target = $generator->writeClass(
+            array(
+                'wsdl' => 'http://localhost/',
+                'namespace' => '',
+                'name' => 'Enum',
+                'properties' => array(
+                    array(
+                        'name' => '',
+                        'restrictions' => array(),
+                        'enum' => array(
+                            'Unassigned',
+                            'Personal',
+                            'Business'
+                        ),
+                        'wsdlType' => 'xs:string',
+                        'phpType' => 'string',
+                        'isNull' => false
+                    )
+                )
+            ),
+            $targetDir
+        );
+        $file1 = $this->fixturesDir.'/My/Webservices/Enum.php';
+        $this->assertFileEquals($file1, $target);
+    }
+
+    public function testGeneratorTypeHinting()
+    {
+        $generator = new ClassGenerator(
+            array('access' => 'protected', 'generate_constructor' => true, 'instance_on_getter' => true),
+            array(
+                'Brand' => array('properties' => array(array('name' => 'someVar'))),
+                'Enum' => array('properties' => array(array('name' => '', 'enum' => array('enum_value')))),
+            )
+        );
+        $targetDir = sys_get_temp_dir();
+
+        $target = $generator->writeClass(
+            array(
+                'wsdl' => 'http://localhost/',
+                'namespace' => '',
+                'name' => 'TypeHinting',
+                'properties' => array(
+                    array(
+                        'name' => 'brand',
+                        'restrictions' => array(),
+                        'enum' => array(),
+                        'wsdlType' => 'xs:brand',
+                        'phpType' => 'Brand',
+                        'isNull' => false
+                    ),
+                    array(
+                        'name' => 'enum',
+                        'restrictions' => array(),
+                        'enum' => array(),
+                        'wsdlType' => 'xs:enum',
+                        'phpType' => 'Enum',
+                        'isNull' => false
+                    ),
+                    array(
+                        'name' => 'arr',
+                        'restrictions' => array(),
+                        'enum' => array(),
+                        'wsdlType' => 'xs:array',
+                        'phpType' => 'array',
+                        'isNull' => true
+                    )
+                )
+            ),
+            $targetDir
+        );
+        $file1 = $this->fixturesDir.'/My/Webservices/TypeHinting.php';
+        $this->assertFileEquals($file1, $target);
     }
 }

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<wsdl:definitions name="BeSimpleWsdlToPhp"
+           targetNamespace="http://wsdl.besim.pl/WsdlToPhp"
+           xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:tns="http://schemas.datacontract.org/2004/07/Transmodus.Wrapper"
+           xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+
+    <wsdl:types>
+        <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+                   xmlns:tns="http://wsdl.besim.pl/WsdlToPhp" elementFormDefault="qualified"
+                   targetNamespace="http://wsdl.besim.pl/WsdlToPhp">
+            <xs:simpleType name="AccountType">
+                <xs:restriction base="xs:string">
+                    <xs:enumeration value="Unassigned"/>
+                    <xs:enumeration value="Personal"/>
+                    <xs:enumeration value="Business"/>
+                </xs:restriction>
+            </xs:simpleType>
+            <xs:element name="AccountType" nillable="true" type="tns:AccountType"/>
+        </xs:schema>
+    </wsdl:types>
+</wsdl:definitions>

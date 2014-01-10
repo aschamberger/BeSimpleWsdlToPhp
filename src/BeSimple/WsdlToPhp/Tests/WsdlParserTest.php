@@ -721,4 +721,71 @@ class WsdlParserTest extends \PHPUnit_Framework_TestCase
         );
         $this->assertFalse($parser->hasErrors());
     }
+
+    /**
+     * @test
+     */
+    public function getWsdlOperationsNoWsdl2javaStyleNamespaces()
+    {
+        $wsdlPath = $this->fixturesDir.'/wsdl/operations.wsdl';
+        $parser = new WsdlParser($wsdlPath, SOAP_1_2, array('wsdl2java_style' => false));
+
+        $this->assertEquals(
+            array(
+                array(
+                    'name' => 'TestOperationOne',
+                    'parameters' => array(
+                        'TestOperationOneRequest' => 'string',
+                    ),
+                    'wrapParameters' => 'TestOperationOne',
+                    'return' => 'TestOperationOneResponse',
+                ),
+                array(
+                    'name' => 'TestOperationTwo',
+                    'parameters' => array(
+                        'TestOperationTwoRequest' => 'string'
+                    ),
+                    'wrapParameters' => 'TestOperationTwo',
+                    'return' => 'TestOperationTwoResponse',
+                )
+            ),
+            $parser->getWsdlOperations()
+        );
+        $this->assertFalse($parser->hasErrors());
+    }
+
+    /**
+     * @test
+     */
+    public function getWsdlEnums()
+    {
+        $wsdlPath = $this->fixturesDir.'/wsdl/enum.wsdl';
+        $parser = new WsdlParser($wsdlPath, SOAP_1_2, array('wsdl2java_style' => false));
+
+        $this->assertEquals(
+            array(
+                'http://wsdl.besim.pl/WsdlToPhp/AccountType' => array(
+                    'wsdl' => $wsdlPath,
+                    'namespace' => '',
+                    'name' => 'AccountType',
+                    'properties' => array(
+                        array(
+                            'name' => '_',
+                            'restrictions' => array(),
+                            'enum' => array(
+                                'Unassigned',
+                                'Personal',
+                                'Business'
+                            ),
+                            'wsdlType' => 'xs:string',
+                            'phpType' => 'string',
+                            'isNull' => false
+                        )
+                    )
+                )
+            ),
+            $parser->getWsdlTypes()
+        );
+        $this->assertFalse($parser->hasErrors());
+    }
 }
