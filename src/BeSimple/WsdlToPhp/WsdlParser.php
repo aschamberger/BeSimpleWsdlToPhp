@@ -314,6 +314,65 @@ class WsdlParser
     }
 
     /**
+     * Recursive merge 2 or more arrays
+     *
+     * @return array
+     */
+    public static function arrayMergeRecursive()
+    {
+        if (func_num_args() < 2) {
+            trigger_error(__FUNCTION__ . ' needs two or more array arguments', E_USER_WARNING);
+            return null;
+        }
+        $arrays = func_get_args();
+        $merged = array();
+        while ($arrays) {
+            $array = array_shift($arrays);
+            if (!is_array($array)) {
+                trigger_error(__FUNCTION__ . ' encountered a non array argument', E_USER_WARNING);
+                return null;
+            }
+            if (!$array) continue;
+            foreach ($array as $key => $value) {
+                if (is_string($key)) {
+                    if (is_array($value) && array_key_exists($key, $merged) && is_array($merged[$key])) {
+                        $merged[$key] = static::arrayMergeRecursive($merged[$key], $value);
+                    } else {
+                        $merged[$key] = $value;
+                    }
+                } else {
+                    $merged[] = $value;
+                }
+            }
+        }
+        return $merged;
+    }
+
+    /**
+     * Add type to the $typeList
+     *
+     * @param array $typeList
+     * @param string $newTypeName
+     * @param array $newType
+     */
+    protected function addNewTypeIntoList(&$typeList, $newTypeName, $newType)
+    {
+        if (!empty($typeList[$newTypeName])) {
+            $this->addError(
+                "Type: '{$newTypeName}' in file '{$newType['wsdl']}' already exist",
+                0,
+                $typeList[$newTypeName]['wsdl']
+            );
+            $typeList[$newTypeName] = $this->arrayMergeRecursive(
+                $typeList[$newTypeName],
+                $newType
+            );
+        } else {
+            $typeList[$newTypeName] = $newType;
+        }
+    }
+
+    /**
      * Extracts WSDL types from WSDL file.
      *
      * @param string $query XPATH query
@@ -349,12 +408,13 @@ class WsdlParser
                         $schema,
                         $namespace
                     );
-                    $wsdlTypes[$wsdlTypeName] = $wsdlType;
+                    $this->addNewTypeIntoList($wsdlTypes, $wsdlTypeName, $wsdlType);
                 // element can have a type attribute that refers to the name of the complex type to use
                 } else {
-                    // TODO only create classes for non default XML schema types???
-                    if ($prefix == $xmlSchemaPrefix
-                            && in_array($typeName, array_keys(XmlSchemaMapper::getAllTypes()))) {
+                    // TODO only create classes for non default XML schema types?
+                    if ($prefix == $xmlSchemaPrefix &&
+                        in_array($typeName, array_keys(XmlSchemaMapper::getAllTypes()))
+                    ) {
                         continue;
                     } else {
                         $wsdlType = array(
@@ -364,12 +424,14 @@ class WsdlParser
                             'parent' => $this->getPhpTypeForSchemaType($element->getAttribute('type'), $schema),
                             'properties' => array(),
                         );
-                        $wsdlTypes[$wsdlTypeName] = $wsdlType;
+                        $this->addNewTypeIntoList($wsdlTypes, $wsdlTypeName, $wsdlType);
                     }
                 }
             }
 
-            $complexTypes = $this->domXpath->query("//xsd:schema[@targetNamespace=\"{$targetNamespace}\"]/xsd:complexType");
+            $complexTypes = $this->domXpath->query(
+                "//xsd:schema[@targetNamespace=\"{$targetNamespace}\"]/xsd:complexType"
+            );
             /** @var DOMElement $element */
             foreach ($complexTypes as $complexType) {
                 $wsdlType = null;
@@ -379,10 +441,12 @@ class WsdlParser
                     $schema,
                     $namespace
                 );
-                $wsdlTypes[$wsdlTypeName] = $wsdlType;
+                $this->addNewTypeIntoList($wsdlTypes, $wsdlTypeName, $wsdlType);
             }
 
-            $simpleTypes = $this->domXpath->query("//xsd:schema[@targetNamespace=\"{$targetNamespace}\"]/xsd:simpleType");
+            $simpleTypes = $this->domXpath->query(
+                "//xsd:schema[@targetNamespace=\"{$targetNamespace}\"]/xsd:simpleType"
+            );
             /** @var DOMElement $element */
             foreach ($simpleTypes as $simpleType) {
                 $wsdlType = null;
@@ -392,7 +456,7 @@ class WsdlParser
                     $schema,
                     $namespace
                 );
-                $wsdlTypes[$wsdlTypeName] = $wsdlType;
+                $this->addNewTypeIntoList($wsdlTypes, $wsdlTypeName, $wsdlType);
             }
         }
 
