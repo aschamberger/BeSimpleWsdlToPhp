@@ -56,9 +56,13 @@ class ClassGenerator extends AbstractClassGenerator
      */
     protected function generateClassName($data)
     {
-        $class = 'class ' . $this->createValidClassName($data['name'], $data['namespace']);
+        $className = $this->createValidClassName($data['name'], $data['namespace']);
+        $class = 'class ' . $className;
         if (!empty($data['parent'])) {
-            $class .= ' extends ' . $this->createValidClassName($data['parent'], $data['namespace']);
+            $parentClassName = $this->createValidClassName($data['parent'], $data['namespace']);
+            if ($className != $parentClassName) {
+                $class .= ' extends ' . $parentClassName;
+            }
         }
 
         return $class;
