@@ -115,7 +115,7 @@ class ClientGenerator extends AbstractClassGenerator
         $lines[] = $this->spaces . $this->spaces . $this->spaces . '$options[\'classmap\'] = $this->getClassMap();';
         $lines[] = $this->spaces . $this->spaces . '}';
         $lines[] = '';
-        $lines[] = $this->spaces . $this->spaces . 'return parent::__construct($wsdl, $options);';
+        $lines[] = $this->spaces . $this->spaces . 'parent::__construct($wsdl, $options);';
         $lines[] = $this->spaces . '}';
         $lines[] = '';
         $lines[] = $this->spaces . 'public function getClassMap()';
