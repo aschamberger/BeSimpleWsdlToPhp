@@ -32,7 +32,7 @@ class Client extends BaseSoapClient
             $options['classmap'] = $this->getClassMap();
         }
 
-        return parent::__construct($wsdl, $options);
+        parent::__construct($wsdl, $options);
     }
 
     public function getClassMap()
