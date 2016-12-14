@@ -358,11 +358,6 @@ class WsdlParser
     protected function addNewTypeIntoList(&$typeList, $newTypeName, $newType)
     {
         if (!empty($typeList[$newTypeName])) {
-            $this->addError(
-                "Type: '{$newTypeName}' in file '{$newType['wsdl']}' already exist",
-                0,
-                $typeList[$newTypeName]['wsdl']
-            );
             $typeList[$newTypeName] = $this->arrayMergeRecursive(
                 $typeList[$newTypeName],
                 $newType
