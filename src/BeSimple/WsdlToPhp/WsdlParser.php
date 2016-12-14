@@ -274,12 +274,22 @@ class WsdlParser
         foreach ($inputTypeWsdl['properties'] as $property) {
             $parameters[$property['name']] = $property['phpType'];
         }
-        if (isset($inputTypeWsdl['parent'])) {
+        if (isset($inputTypeWsdl['parent']) && !$this->isSelfParent($inputTypeWsdl)) {
             $inputTypeNS = $inputTypeWsdl['parentXml'];
             $parameters = array_merge($parameters, $this->getOperationParameters($wsdlTypes, $inputTypeNS));
         }
 
         return $parameters;
+    }
+
+    private function isSelfParent($wsdlTypes)
+    {
+        if (!isset($wsdlTypes['namespace'], $wsdlTypes['name'], $wsdlTypes['parent'])) {
+            return false;
+        }
+        $selfFqn = $wsdlTypes['namespace'] . '\\' . $wsdlTypes['name'];
+
+        return $selfFqn === $wsdlTypes['parent'];
     }
 
     /**
