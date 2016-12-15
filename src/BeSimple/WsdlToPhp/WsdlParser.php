@@ -287,7 +287,12 @@ class WsdlParser
         if (!isset($wsdlTypes['namespace'], $wsdlTypes['name'], $wsdlTypes['parent'])) {
             return false;
         }
-        $selfFqn = $wsdlTypes['namespace'] . '\\' . $wsdlTypes['name'];
+
+        $ns = '';
+        if (!empty($wsdlTypes['namespace'])) {
+            $ns = $wsdlTypes['namespace'] . '\\';
+        }
+        $selfFqn = $ns . $wsdlTypes['name'];
 
         return $selfFqn === $wsdlTypes['parent'];
     }
