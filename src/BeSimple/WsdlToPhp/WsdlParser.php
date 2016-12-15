@@ -267,7 +267,7 @@ class WsdlParser
      *
      * @return array
      */
-    private function getOperationParameters($wsdlTypes, $inputTypeNS)
+    private function getOperationParameters($wsdlTypes, $inputTypeNS, $recursive=false)
     {
         $parameters = array();
         $inputTypeWsdl = $wsdlTypes[$inputTypeNS];
@@ -276,7 +276,7 @@ class WsdlParser
         }
         if (isset($inputTypeWsdl['parent']) && !$this->isSelfParent($inputTypeWsdl)) {
             $inputTypeNS = $inputTypeWsdl['parentXml'];
-            $parameters = array_merge($parameters, $this->getOperationParameters($wsdlTypes, $inputTypeNS));
+            $parameters = array_merge($parameters, $this->getOperationParameters($wsdlTypes, $inputTypeNS, true));
         }
 
         return $parameters;
@@ -287,7 +287,12 @@ class WsdlParser
         if (!isset($wsdlTypes['namespace'], $wsdlTypes['name'], $wsdlTypes['parent'])) {
             return false;
         }
-        $selfFqn = $wsdlTypes['namespace'] . '\\' . $wsdlTypes['name'];
+
+        $ns = '';
+        if (!empty($wsdlTypes['namespace'])) {
+            $ns = $wsdlTypes['namespace'] . '\\';
+        }
+        $selfFqn = $ns . $wsdlTypes['name'];
 
         return $selfFqn === $wsdlTypes['parent'];
     }
